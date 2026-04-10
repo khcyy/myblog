@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="yellow flower two">
+  <g fill="#ffd852" stroke="#d3a62c" stroke-width="3">
+    <ellipse cx="90" cy="26" rx="20" ry="28" />
+    <ellipse cx="90" cy="154" rx="20" ry="28" />
+    <ellipse cx="26" cy="90" rx="28" ry="20" />
+    <ellipse cx="154" cy="90" rx="28" ry="20" />
+    <ellipse cx="45" cy="45" rx="20" ry="16" transform="rotate(-45 45 45)" />
+    <ellipse cx="135" cy="45" rx="20" ry="16" transform="rotate(45 135 45)" />
+    <ellipse cx="45" cy="135" rx="20" ry="16" transform="rotate(45 45 135)" />
+    <ellipse cx="135" cy="135" rx="20" ry="16" transform="rotate(-45 135 135)" />
+  </g>
+  <circle cx="90" cy="90" r="20" fill="#7e6123" />
+</svg>
