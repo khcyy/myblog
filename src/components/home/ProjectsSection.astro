@@ -1,0 +1,35 @@
+---
+interface Props {
+  projects: {
+    id: string;
+    title: string;
+    summary: string;
+    date: string;
+    stack: string[];
+  }[];
+}
+
+const { projects } = Astro.props;
+---
+
+<section class="panel section" id="projects">
+  <div class="section-head">
+    <h2>projects</h2>
+    <p>项目页和 blog 共用骨架，但内容更偏成果、技术栈、截图和过程复盘。</p>
+  </div>
+  <div class="list">
+    {projects.map((project) => (
+      <article class="item">
+        <a href={`/projects/${project.id}`} class="thumb" style="display: block; text-decoration: none; color: inherit;">项目截图</a>
+        <div>
+          <h3><a href={`/projects/${project.id}`}>{project.title}</a></h3>
+          <p>{project.summary}</p>
+          <div class="meta">
+            <span>{project.date}</span>
+            {project.stack.map((item: string) => <span>{item}</span>)}
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

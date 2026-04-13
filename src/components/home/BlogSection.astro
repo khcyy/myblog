@@ -1,0 +1,35 @@
+---
+interface Props {
+  posts: {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    tags: string[];
+  }[];
+}
+
+const { posts } = Astro.props;
+---
+
+<section class="panel section" id="blog">
+  <div class="section-head">
+    <h2>blog</h2>
+    <p>这里继续沿用你 PDF 里那种左图右文的阅读感，后面可以直接替换成 Astro 文章列表。</p>
+  </div>
+  <div class="list">
+    {posts.map((post) => (
+      <article class="item">
+        <a href={`/blog/${post.id}`} class="thumb" style="display: block; text-decoration: none; color: inherit;">文章封面</a>
+        <div>
+          <h3><a href={`/blog/${post.id}`}>{post.title}</a></h3>
+          <p>{post.description}</p>
+          <div class="meta">
+            <span>{post.date}</span>
+            {post.tags.map((tag: string) => <span>#{tag}</span>)}
+          </div>
+        </div>
+      </article>
+    ))}
+  </div>
+</section>

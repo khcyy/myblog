@@ -1,0 +1,52 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
+  const projects = await getCollectionAny('projects');
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+
+// Format the date since it comes out of Zod as a Date object
+const dateStr = new Date(project.data.date).toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+});
+---
+
+<Layout title={`${project.data.title} - Project`}>
+  <div class="shell page-shell">
+    <div class="topbar">
+      <div class="topbar-inner" style="justify-content: flex-start; padding: 12px 24px;">
+        <a href="/#projects" style="font-weight: bold;">&larr; 返回首页</a>
+      </div>
+    </div>
+    
+    <main class="panel article-panel">
+      <header class="article-header">
+        <h1>{project.data.title}</h1>
+        <p class="summary">{project.data.summary}</p>
+        <div class="meta">
+          <span>{dateStr}</span>
+          {project.data.stack?.map((item: string) => (
+             <span class="tag">{item}</span>
+          ))}
+        </div>
+      </header>
+
+      <article class="prose">
+        <Content />
+      </article>
+    </main>
+  </div>
+</Layout>
+
+
