@@ -26,24 +26,36 @@ type ProjectPreview = {
 
 const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
 
+// 修复：安全获取 blog 文章（处理空日期）
 const posts: BlogPreview[] = (await getCollectionAny('blog'))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .filter(post => post.data.date) // 过滤掉没有日期的文章
+  .sort((a, b) => {
+    const dateA = new Date(a.data.date);
+    const dateB = new Date(b.data.date);
+    return dateB.getTime() - dateA.getTime();
+  })
   .map((post) => ({
     id: post.id,
     title: post.data.title,
     description: post.data.description,
-    date: post.data.date.toISOString().slice(0, 10),
-    tags: post.data.tags,
+    date: new Date(post.data.date).toISOString().slice(0, 10),
+    tags: post.data.tags || [],
   }));
 
+// 修复：安全获取 projects 项目（处理空日期）
 const projects: ProjectPreview[] = (await getCollectionAny('projects'))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .filter(project => project.data.date) // 过滤掉没有日期的项目
+  .sort((a, b) => {
+    const dateA = new Date(a.data.date);
+    const dateB = new Date(b.data.date);
+    return dateB.getTime() - dateA.getTime();
+  })
   .map((project) => ({
     id: project.id,
     title: project.data.title,
     summary: project.data.summary,
-    date: project.data.date.toISOString().slice(0, 10),
-    stack: project.data.stack,
+    date: new Date(project.data.date).toISOString().slice(0, 10),
+    stack: project.data.stack || [],
   }));
 ---
 
