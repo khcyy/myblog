@@ -1,0 +1,7 @@
+name = "myblog"
+compatibility_date = "2024-04-14"
+
+[[d1_databases]]
+binding = "DB" # 在代码中可通过 env.DB 或 Astro.locals.runtime.env.DB 访问
+database_name = "blog_db"
+database_id = "0d64b64d-1cd8-4adf-84e4-4b5b61023b50"

@@ -7,6 +7,7 @@ import BlogSection from '../components/home/BlogSection.astro';
 import ProjectsSection from '../components/home/ProjectsSection.astro';
 import AboutSection from '../components/home/AboutSection.astro';
 import FriendsSection from '../components/home/FriendsSection.astro';
+import SiteFooter from '../components/common/SiteFooter.astro';
 
 type BlogPreview = {
   id: string;
@@ -35,12 +36,13 @@ const posts: BlogPreview[] = (await getCollectionAny('blog'))
     return dateB.getTime() - dateA.getTime();
   })
   .map((post) => ({
-    id: post.id,
+    id: post.id.replace(/\.mdx?$/, ''),
     title: post.data.title,
     description: post.data.description,
     date: new Date(post.data.date).toISOString().slice(0, 10),
     tags: post.data.tags || [],
-  }));
+  }))
+  .slice(0, 5);
 
 // 修复：安全获取 projects 项目（处理空日期）
 const projects: ProjectPreview[] = (await getCollectionAny('projects'))
@@ -51,12 +53,13 @@ const projects: ProjectPreview[] = (await getCollectionAny('projects'))
     return dateB.getTime() - dateA.getTime();
   })
   .map((project) => ({
-    id: project.id,
+    id: project.id.replace(/\.mdx?$/, ''),
     title: project.data.title,
     summary: project.data.summary,
     date: new Date(project.data.date).toISOString().slice(0, 10),
     stack: project.data.stack || [],
-  }));
+  }))
+  .slice(0, 5);
 ---
 
 <Layout title="isishey · mockup v5">
@@ -68,11 +71,14 @@ const projects: ProjectPreview[] = (await getCollectionAny('projects'))
     <ProjectsSection projects={projects} />
     <AboutSection />
     <FriendsSection />
+    <SiteFooter />
   </div>
 <script>
-  const btn = document.getElementById('themeToggle');
-  btn?.addEventListener('click', () => {
-    document.body.classList.toggle('dark');
+  document.addEventListener('astro:page-load', () => {
+    const btn = document.getElementById('themeToggle');
+    btn?.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
   });
 </script>
 </Layout>

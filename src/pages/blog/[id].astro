@@ -6,13 +6,13 @@ export async function getStaticPaths() {
   const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
   const posts = await getCollectionAny('blog');
   return posts.map((post) => ({
-    params: { id: post.id },
+    params: { id: post.id.replace(/\.mdx?$/, '') },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 
 // Format the date since it comes out of Zod as a Date object
 const dateStr = new Date(post.data.date).toLocaleDateString('zh-CN', {
@@ -30,21 +30,151 @@ const dateStr = new Date(post.data.date).toLocaleDateString('zh-CN', {
       </div>
     </div>
     
-    <main class="panel article-panel">
-      <header class="article-header">
-        <h1>{post.data.title}</h1>
-        <div class="meta">
-          <span>{dateStr}</span>
-          {post.data.tags?.map((tag: string) => (
-            <span class="tag">#{tag}</span>
-          ))}
-        </div>
-      </header>
+    <div class="article-layout">
+      <main class="panel article-panel">
+        <header class="article-header">
+          <h1>{post.data.title}</h1>
+          <div class="meta">
+            <span>{dateStr}</span>
+            {post.data.tags?.map((tag: string) => (
+              <a href={`/tags/${tag}`} class="tag">#{tag}</a>
+            ))}
+          </div>
+        </header>
 
-      <article class="prose">
-        <Content />
-      </article>
-    </main>
+        <article class="prose">
+          <Content />
+        </article>
+
+        <!-- 本地全栈评论区 -->
+        <section class="comments-section" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--line);">
+          <h3 style="margin-bottom: 1.5rem;">评论 / Comments</h3>
+          
+          <!-- 评论发布表单 -->
+          <form id="comment-form" style="margin-bottom: 2.5rem; display: flex; flex-direction: column; gap: 1rem;">
+            <input type="hidden" name="post_slug" value={post.id.replace(/\.mdx?$/, '')} />
+            <div style="display: flex; gap: 1rem;">
+              <input type="text" name="author" placeholder="昵称 (必填)" required style="flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit;" />
+              <input type="email" name="email" placeholder="邮箱 (选填)" style="flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit;" />
+            </div>
+            <textarea name="content" placeholder="分享你的看法..." required rows="4" style="padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit; resize: vertical;"></textarea>
+            
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <button type="submit" id="submit-btn" style="padding: 0.6rem 1.5rem; border: none; border-radius: 8px; background: var(--text); color: var(--bg); font-weight: bold; cursor: pointer; transition: opacity 0.2s;">
+                提交评论
+              </button>
+              <span id="submit-msg" style="font-size: 0.9rem;"></span>
+            </div>
+          </form>
+
+          <!-- 评论详情列表 -->
+          <div id="comments-list" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <p style="color: var(--sub); font-size: 0.9rem;">加载中...</p>
+          </div>
+        </section>
+
+        <script is:inline>
+          // 使用 DOMContentLoaded 或者 astro:page-load（开启视口渐变时）
+          document.addEventListener('astro:page-load', () => {
+            const form = document.getElementById('comment-form');
+            const list = document.getElementById('comments-list');
+            if (!form || !list) return;
+
+            const postSlug = form.querySelector('input[name="post_slug"]').value;
+
+            // 加载已有评论
+            async function loadComments() {
+              try {
+                const res = await fetch(`/api/comments/get?slug=${postSlug}`);
+                const json = await res.json();
+                
+                if (json.success) {
+                  if (json.data.length === 0) {
+                    list.innerHTML = '<p style="color: var(--sub); font-size: 0.9rem;">暂无评论，快来发布第一条留言吧！</p>';
+                  } else {
+                    list.innerHTML = json.data.map(c => `
+                      <div style="padding: 1.2rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--paper) 40%, transparent);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; align-items: center;">
+                          <strong style="font-size: 1.05rem;">${c.author}</strong>
+                          <span style="font-size: 0.8rem; color: var(--sub);">${new Date(c.created_at).toLocaleString()}</span>
+                        </div>
+                        <p style="margin: 0; line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem;">${c.content}</p>
+                      </div>
+                    `).join('');
+                  }
+                } else {
+                  list.innerHTML = `<p style="color: #e74c3c;">获取评论失败：${json.error}</p>`;
+                }
+              } catch (err) {
+                list.innerHTML = '<p style="color: #e74c3c;">服务器连接错误</p>';
+              }
+            }
+
+            // 发起评论请求
+            form.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const btn = document.getElementById('submit-btn');
+              const msg = document.getElementById('submit-msg');
+              
+              const payload = {
+                post_slug: postSlug,
+                author: form.querySelector('input[name="author"]').value,
+                email: form.querySelector('input[name="email"]').value,
+                content: form.querySelector('textarea[name="content"]').value,
+              };
+
+              btn.disabled = true;
+              btn.innerText = '提交中...';
+              btn.style.opacity = '0.7';
+              msg.innerText = '';
+
+              try {
+                const res = await fetch('/api/comments/post', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                  msg.style.color = 'inherit';
+                  msg.innerText = '发布成功！';
+                  form.reset();
+                  loadComments(); // 刷新列表
+                } else {
+                  msg.style.color = '#e74c3c';
+                  msg.innerText = json.error || '发布失败';
+                }
+              } catch (error) {
+                msg.style.color = '#e74c3c';
+                msg.innerText = '网络异常，请重试';
+              } finally {
+                btn.disabled = false;
+                btn.innerText = '提交评论';
+                btn.style.opacity = '1';
+                setTimeout(() => msg.innerText = '', 3000);
+              }
+            });
+
+            // 页面载入时初始获取数据
+            loadComments();
+          });
+        </script>
+      </main>
+
+      {headings.length > 0 && (
+        <aside class="toc-sidebar">
+          <h3>目录 / On this page</h3>
+          <nav class="toc-nav">
+            {headings.map((heading: any) => (
+              <a href={`#${heading.slug}`} class={`toc-depth-${heading.depth}`}>
+                {heading.text}
+              </a>
+            ))}
+          </nav>
+        </aside>
+      )}
+    </div>
   </div>
 </Layout>
 

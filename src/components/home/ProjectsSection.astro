@@ -13,20 +13,21 @@ const { projects } = Astro.props;
 ---
 
 <section class="panel section" id="projects">
-  <div class="section-head">
+  <div class="section-head" style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;">
     <h2>projects</h2>
-    <p>项目页和 blog 共用骨架，但内容更偏成果、技术栈、截图和过程复盘。</p>
+    <a href="/projects" class="nav-link-out" style="font-size: 14px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; background: var(--line); color: var(--text); text-decoration: none; transition: 0.2s;">
+      查看全部项目 &rarr;
+    </a>
   </div>
   <div class="list">
     {projects.map((project) => (
       <article class="item">
-        <a href={`/projects/${project.id}`} class="thumb" style="display: block; text-decoration: none; color: inherit;">项目截图</a>
         <div>
           <h3><a href={`/projects/${project.id}`}>{project.title}</a></h3>
           <p>{project.summary}</p>
           <div class="meta">
             <span>{project.date}</span>
-            {project.stack.map((item: string) => <span>{item}</span>)}
+            {project.stack.map((item: string) => <span class="tag">{item}</span>)}
           </div>
         </div>
       </article>

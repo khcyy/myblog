@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths({ paginate }: any) {
+  const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
+  const allProjects = await getCollectionAny('projects');
+  
+  // 过滤并按日期倒序
+  const sortedProjects = allProjects
+    .filter(project => project.data.date)
+    .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+  // Astro 内置分页函数，这里设置为每页 10 篇
+  return paginate(sortedProjects, { pageSize: 10 });
+}
+
+const { page } = Astro.props as any;
+---
+
+<Layout title={`项目归档 - 第 ${page.currentPage} 页 - isishey blog`}>
+  <div class="shell" style="max-width: 800px; margin-top: 40px;">
+    
+    <div class="topbar-inner" style="display: inline-flex; margin-bottom: 40px; padding: 10px 20px;">
+      <a href="/#projects" style="font-weight: bold; color: var(--text);">&larr; 返回首页</a>
+    </div>
+
+    <header style="margin-bottom: 40px;">
+      <h1 style="font-size: 36px; margin: 0 0 10px;">所有项目 / Projects</h1>
+      <p style="color: var(--sub); font-size: 16px;">代码与实践记录，第 {page.currentPage} 页，共 {page.lastPage} 页</p>
+    </header>
+
+    <div class="list" style="display: flex; flex-direction: column; gap: 16px;">
+      {page.data.map((project: any) => (
+        <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line);">
+          <div>
+            <h3 style="margin: 0 0 10px; font-size: 20px;">
+              <a href={`/projects/${project.id.replace(/\.mdx?$/, '')}`}>{project.data.title}</a>
+            </h3>
+            <p style="margin: 0 0 12px; color: var(--sub); line-height: 1.6;">{project.data.summary}</p>
+            <div class="meta">
+              <span>{new Date(project.data.date).toISOString().slice(0, 10)}</span>
+              {project.data.stack?.map((item: string) => (
+                <span class="tag">{item}</span>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- 分页导航 -->
+    <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+      {page.url.prev ? <a href={page.url.prev} class="nav-link-out">&larr; 上一页</a> : <div></div>}
+      {page.url.next ? <a href={page.url.next} class="nav-link-out">下一页 &rarr;</a> : <div></div>}
+    </div>
+
+  </div>
+</Layout>

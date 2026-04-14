@@ -1,54 +1,64 @@
 export const siteConfig = {
-  title: "My Astro Blog",
-  author: "Your Name",
-  description: "A minimal space on the internet.",
+  title: "isishey blog",
+  author: "isishey",
+  description: "记录学习、项目与生活片段的个人空间。",
 };
 
 export const socialLinks = [
-  { name: "Instagram", href: "#", icon: "instagram" },
-  { name: "X", href: "#", icon: "x" },
+  { name: "GitHub", href: "https://github.com", icon: "github" },
+  { name: "Bilibili", href: "https://www.bilibili.com", icon: "youtube" },
   { name: "Email", href: "mailto:hello@example.com", icon: "email" },
-  { name: "Github", href: "#", icon: "github" },
-  { name: "YouTube", href: "#", icon: "youtube" },
+  { name: "X", href: "https://x.com", icon: "x" },
+  { name: "Instagram", href: "https://instagram.com", icon: "instagram" },
 ];
 
 export const friendsData = [
   {
     name: "示例友链 A",
-    description: "写日记、书评、插画和生活记录。",
+    description: "",
     url: "https://example.com",
     label: "https://example.com"
   },
   {
     name: "示例友链 B",
-    description: "可以做成很安静的卡片，不要太商业，也不要太重的边框和阴影。",
+    description: "",
     url: "https://example.com",
     label: "https://example.com"
   },
   {
     name: "示例友链 C",
-    description: "如果你后面想做留言板，这一页也可以换成 guestbook，结构仍然能复用。",
+    description: "",
     url: "#",
     label: "notes / archive"
   },
   {
     name: "示例友链 D",
-    description: "右下角的联系方式图标固定在这一页，不再悬浮到其他页面。",
+    description: "",
     url: "#",
     label: "links / friends"
   }
 ];
 
 export const aboutData = {
-  title: "about",
-  subtitle: "这部分先保留一个比较轻的介绍区，后面你可以换成个人经历时间线、兴趣拼贴或者简历式模块。",
-  items: [
+  title: "Experience",
+  timeline: [
     {
-      title: "个人经历 / 兴趣爱好 / 个人分享",
-      description: "适合写你是谁、在学什么、喜欢什么、最近在做什么。也能加入书影音、收藏夹、日常心情和一些轻内容。",
-      image: "/images/flowers.png",
-      alt: "flower",
-      tags: ["#about me", "#feelings", "#archive"]
+      year: "2026",
+      title: "自由开发者 & 博客重构",
+      description: "使用 Astro + Tailwind/CSS 重构了个人博客，优化了部署管线。记录学习与生活点滴。",
+      highlights: ["Astro SSG", "全栈个人知识库"]
+    },
+    {
+      year: "2025",
+      title: "开源项目贡献",
+      description: "在课余时间开始构建个人的开源组件库，沉淀并输出了多篇关于前端架构的文章与教程。",
+      highlights: ["TypeScript", "工程化建设"]
+    },
+    {
+      year: "2024",
+      title: "校园探索与基础夯实",
+      description: "开始了系统的计算机科学之旅，热衷于发现各种前端新鲜技术并记录笔记。",
+      highlights: ["基础数据结构", "网页开发启蒙"]
     }
   ]
 };

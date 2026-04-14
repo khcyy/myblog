@@ -5,11 +5,9 @@ import { friendsData } from "../../data/siteData";
 <section class="panel section friends" id="friends">
   <div class="friends-grid">
     <div class="friends-note">
-      <p>这里先改成友链页。后面你如果想拆出单独的 Comment / 留言页，也可以继续沿用这个大框架。</p>
     </div>
     <div class="friends-main">
       <h2>Friends</h2>
-      <p>留一块给喜欢的网站、朋友的博客，以及我常去看的地方。后面还可以加上申请友链说明。</p>
       <div class="friend-cards">
         {friendsData.map((friend) => (
           <a class="friend-card" href={friend.url} target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">

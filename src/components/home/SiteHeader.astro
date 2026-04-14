@@ -1,9 +1,13 @@
+---
+import { siteConfig } from '../../data/siteData';
+---
+
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
       <div class="brand-mark"><img src="/images/logo.png" alt="logo"></div>
       <div class="brand-text">
-        <strong>isishey</strong>
+        <strong>{siteConfig.title}</strong>
         <span>notes · projects · feelings</span>
       </div>
     </div>
@@ -14,7 +18,14 @@
         <a href="#projects">projects</a>
         <a href="#about">about</a>
         <a href="#friends">friends</a>
+        <a href="/search" style="color: var(--text); display: inline-flex; align-items: center; justify-content: center;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </a>
       </nav>
+      <a class="nav-link-out" href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
       <button class="theme-btn" id="themeToggle" aria-label="切换日夜模式">
         <span class="crescent"></span>
       </button>

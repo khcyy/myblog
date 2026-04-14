@@ -5,22 +5,19 @@ import { aboutData } from "../../data/siteData";
 <section class="panel section" id="about">
   <div class="section-head">
     <h2>{aboutData.title}</h2>
-    <p>{aboutData.subtitle}</p>
   </div>
-  <div class="list">
-    {aboutData.items.map((item) => (
-      <article class="item">
-        <div class="thumb"><img src={item.image} alt={item.alt} /></div>
-        <div>
-          <h3>{item.title}</h3>
-          <p>{item.description}</p>
-          <div class="meta">
-            {item.tags.map((tag) => (
-              <span>{tag}</span>
-            ))}
-          </div>
+  <div class="timeline">
+    {aboutData.timeline.map((item) => (
+      <div class="timeline-item">
+        <span class="time-year">{item.year}</span>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+        <div class="meta">
+          {item.highlights.map((highlight) => (
+            <span class="tag">{highlight}</span>
+          ))}
         </div>
-      </article>
+      </div>
     ))}
   </div>
 </section>

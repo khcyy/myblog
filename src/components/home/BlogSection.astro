@@ -13,20 +13,21 @@ const { posts } = Astro.props;
 ---
 
 <section class="panel section" id="blog">
-  <div class="section-head">
+  <div class="section-head" style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;">
     <h2>blog</h2>
-    <p>这里继续沿用你 PDF 里那种左图右文的阅读感，后面可以直接替换成 Astro 文章列表。</p>
+    <a href="/blog" class="nav-link-out" style="font-size: 14px; display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; background: var(--line); color: var(--text); text-decoration: none; transition: 0.2s;">
+      查看全部文章 &rarr;
+    </a>
   </div>
   <div class="list">
     {posts.map((post) => (
       <article class="item">
-        <a href={`/blog/${post.id}`} class="thumb" style="display: block; text-decoration: none; color: inherit;">文章封面</a>
         <div>
           <h3><a href={`/blog/${post.id}`}>{post.title}</a></h3>
           <p>{post.description}</p>
           <div class="meta">
             <span>{post.date}</span>
-            {post.tags.map((tag: string) => <span>#{tag}</span>)}
+            {post.tags.map((tag: string) => <a href={`/tags/${tag}`} class="tag">#{tag}</a>)}
           </div>
         </div>
       </article>

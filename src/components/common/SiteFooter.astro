@@ -1,0 +1,17 @@
+---
+import { siteConfig, socialLinks } from '../../data/siteData';
+---
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div>
+      <p class="site-footer-title">{siteConfig.title}</p>
+      <p class="site-footer-desc">{siteConfig.description}</p>
+    </div>
+    <nav class="site-footer-links" aria-label="社交链接">
+      {socialLinks.map((link) => (
+        <a href={link.href} target="_blank" rel="noopener noreferrer">{link.name}</a>
+      ))}
+    </nav>
+  </div>
+</footer>

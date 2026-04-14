@@ -1,0 +1,104 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="检索 - isishey blog">
+  <div class="shell" style="max-width: 800px; margin-top: 40px; min-height: 80vh;">
+    
+    <div class="topbar-inner" style="display: inline-flex; margin-bottom: 40px; padding: 10px 20px;">
+      <a href="/" style="font-weight: bold; color: var(--text);">&larr; 返回首页</a>
+    </div>
+
+    <header style="margin-bottom: 40px;">
+      <h1 style="font-size: 36px; margin: 0 0 10px;">全站检索 / Search</h1>
+      <p style="color: var(--sub); font-size: 16px;">通过关键词寻找博客和项目</p>
+      
+      <!-- 搜索输入框 -->
+      <div style="margin-top: 24px;">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="输入关键词，例如「CSS」「笔记」..." 
+          style="width: 100%; padding: 16px 20px; font-size: 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper); color: var(--text); outline: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05);"
+          autocomplete="off"
+        />
+      </div>
+    </header>
+
+    <!-- 搜索结果渲染区 -->
+    <div id="searchResults" class="list" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="color: var(--sub); padding-left: 5px;">输入内容以开始搜索...</p>
+    </div>
+
+  </div>
+
+  <script>
+    // 定义全局变量存储索引
+    let allData: any[] = [];
+    
+    // 异步拉取我们生成的 search.json.ts 里的静态数据
+    async function fetchSearchData() {
+      try {
+        const res = await fetch('/search.json');
+        allData = await res.json();
+      } catch (error) {
+        console.error("加载搜索数据失败: ", error);
+        document.getElementById('searchResults')!.innerHTML = '<p style="color: red;">搜索服务加载失败，请刷新重试</p>';
+      }
+    }
+    
+    function renderResults(query: string) {
+      const resultsContainer = document.getElementById('searchResults');
+      if (!resultsContainer) return;
+
+      if (!query.trim()) {
+        resultsContainer.innerHTML = '<p style="color: var(--sub); padding-left: 5px;">输入内容以开始搜索...</p>';
+        return;
+      }
+      
+      const lowerQuery = query.toLowerCase();
+      // 简单匹配：标题、描述 或 markdown正文内容中包含关键词
+      const filtered = allData.filter(item => 
+        (item.title && item.title.toLowerCase().includes(lowerQuery)) || 
+        (item.description && item.description.toLowerCase().includes(lowerQuery)) ||
+        (item.content && item.content.toLowerCase().includes(lowerQuery))
+      );
+      
+      if (filtered.length === 0) {
+        resultsContainer.innerHTML = '<p style="color: var(--sub); padding-left: 5px;">没有找到匹配的内容，换个词试试？</p>';
+        return;
+      }
+      
+      resultsContainer.innerHTML = filtered.map(item => `
+        <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line); transition: transform 0.2s;">
+          <div>
+            <div style="font-size: 12px; color: var(--sub); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">
+              ${item.type === 'blog' ? '📝 文章' : '💻 项目'}
+            </div>
+            <h3 style="margin: 0 0 10px; font-size: 20px;">
+              <a href="${item.url}" style="text-decoration:none; color: var(--text);">${item.title}</a>
+            </h3>
+            <p style="margin: 0; color: var(--sub); line-height: 1.6; font-size: 15px;">${item.description}</p>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Astro 的视图过渡事件兼容
+    document.addEventListener('astro:page-load', () => {
+      const input = document.getElementById('searchInput') as HTMLInputElement | null;
+      if (input) {
+        // 进入页面即自动加载 json 索引
+        fetchSearchData().then(() => {
+           // 如果输入框有保留数据（例如返回上一页），则触发渲染
+           if (input.value) renderResults(input.value);
+        });
+        
+        // 监听每一次键盘输入
+        input.addEventListener('input', (e) => {
+          renderResults((e.target as HTMLInputElement).value);
+        });
+      }
+    });
+  </script>
+</Layout>
