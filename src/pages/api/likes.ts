@@ -10,7 +10,10 @@ export async function GET({ request, locals }) {
        return new Response(JSON.stringify({ error: '必须提供分类 slug' }), { status: 400 });
     }
 
-    const db = locals.runtime.env.DB;
+    const db = locals.runtime?.env?.DB ?? locals.env?.DB;
+    if (!db) {
+       return new Response(JSON.stringify({ error: '数据库连接失败，无法获取 D1 实例' }), { status: 500 });
+    }
     // 获取某个 slug 下的点赞总数
     const result = await db.prepare(
       "SELECT COUNT(*) as count FROM likes WHERE post_slug = ?"
@@ -31,7 +34,10 @@ export async function POST({ request, locals }) {
     const body = await request.json();
     const { post_slug } = body;
 
-    const db = locals.runtime.env.DB;
+    const db = locals.runtime?.env?.DB ?? locals.env?.DB;
+    if (!db) {
+       return new Response(JSON.stringify({ error: '保存点赞失败，无法获取 D1 实例' }), { status: 500 });
+    }
     await db.prepare(
       "INSERT INTO likes (post_slug) VALUES (?)"
     ).bind(post_slug).run();

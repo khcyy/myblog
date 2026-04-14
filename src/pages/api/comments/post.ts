@@ -14,7 +14,13 @@ export async function POST({ request, locals }) {
     }
 
     // 从 Astro 的上下文中获取 Cloudflare D1 绑定对象
-    const db = locals.runtime.env.DB;
+    const db = locals.runtime?.env?.DB ?? locals.env?.DB;
+    if (!db) {
+      return new Response(JSON.stringify({ error: '数据库连接失败，无法获取 D1 实例' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
     // 执行插入语句
     await db.prepare(

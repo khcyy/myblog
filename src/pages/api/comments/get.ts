@@ -13,7 +13,13 @@ export async function GET({ request, locals }) {
     }
 
     // 从上下文中获取数据库绑定
-    const db = locals.runtime.env.DB;
+    const db = locals.runtime?.env?.DB ?? locals.env?.DB;
+    if (!db) {
+      return new Response(JSON.stringify({ error: '数据库连接失败，无法获取 D1 实例' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     
     // 执行查询语句，按时间最新倒序排列
     const { results } = await db.prepare(
