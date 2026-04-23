@@ -1,12 +1,9 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { projects } from '../schema';
 import type { DbClient } from '../client';
 
 export function createProjectsRepository(db: DbClient) {
   return {
-    async listAll(limit = 200) {
-      return db.select().from(projects).orderBy(desc(projects.updatedAt)).limit(limit);
-    },
     async listPublished(limit = 20) {
       return db
         .select()
@@ -14,10 +11,6 @@ export function createProjectsRepository(db: DbClient) {
         .where(eq(projects.status, 'published'))
         .orderBy(desc(projects.publishedAt))
         .limit(limit);
-    },
-    async getById(id: number) {
-      const rows = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
-      return rows[0] ?? null;
     },
     async getBySlug(slug: string) {
       const rows = await db.select().from(projects).where(eq(projects.slug, slug)).limit(1);
@@ -27,16 +20,7 @@ export function createProjectsRepository(db: DbClient) {
       return db.insert(projects).values(input);
     },
     async update(id: number, patch: Partial<typeof projects.$inferInsert>) {
-      return db
-        .update(projects)
-        .set({
-          ...patch,
-          updatedAt: sql`CURRENT_TIMESTAMP`
-        })
-        .where(and(eq(projects.id, id)));
-    },
-    async remove(id: number) {
-      return db.delete(projects).where(eq(projects.id, id));
+      return db.update(projects).set(patch).where(and(eq(projects.id, id)));
     }
   };
 }
