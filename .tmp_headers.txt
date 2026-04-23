@@ -1,0 +1,9 @@
+HTTP/1.1 302 Found
+Vary: Origin
+set-cookie: github_oauth_state=7949ce8bcdd827c0169e0651d414b118; Max-Age=600; Path=/; HttpOnly; SameSite=Lax
+location: https://github.com/login/oauth/authorize?client_id=Ov23liqkfkcrm4ozzl2Y&redirect_uri=http%3A%2F%2Flocalhost%3A4321%2Fapi%2Fauth%2Fgithub%2Fcallback&scope=read%3Auser+user%3Aemail&state=7949ce8bcdd827c0169e0651d414b118
+Date: Wed, 22 Apr 2026 02:54:51 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+

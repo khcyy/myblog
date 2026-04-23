@@ -1,0 +1,28 @@
+import type { APIRoute } from 'astro';
+import { buildGitHubAuthorizeUrl, getEnvFromLocals } from '../../../../lib/auth/github';
+import { setOAuthStateCookie } from '../../../../lib/auth/session';
+
+function createState() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+export const GET: APIRoute = async ({ request, locals, cookies, redirect }) => {
+  const env = getEnvFromLocals(locals as any);
+  if (!env?.GITHUB_CLIENT_ID) {
+    return new Response('GITHUB_CLIENT_ID is missing', { status: 500 });
+  }
+
+  const state = createState();
+  setOAuthStateCookie(cookies, request.url, state);
+
+  const callbackUrl = new URL('/api/auth/github/callback', request.url).toString();
+  const authUrl = buildGitHubAuthorizeUrl({
+    clientId: env.GITHUB_CLIENT_ID,
+    redirectUri: callbackUrl,
+    state
+  });
+
+  return redirect(authUrl, 302);
+};

@@ -1,0 +1,30 @@
+{
+  "name": "myblog",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate:local": "wrangler d1 execute blog_db --local --file",
+    "db:migrate:remote": "wrangler d1 execute blog_db --remote --file"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.8",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "3.1.6",
+    "astro": "4.15.0",
+    "drizzle-orm": "^0.45.2",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@astrojs/cloudflare": "^11.0.4",
+    "drizzle-kit": "^0.31.10",
+    "wrangler": "^4.82.2"
+  }
+}

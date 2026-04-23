@@ -1,0 +1,65 @@
+---
+interface Props {
+  title: string;
+  currentPath?: string;
+}
+
+const { title, currentPath = '' } = Astro.props;
+const user = (Astro.locals as any).currentUser;
+
+const navItems = [
+  { href: '/admin', label: '概览' },
+  { href: '/admin/posts', label: '文章' },
+  { href: '/admin/projects', label: '项目' },
+  { href: '/admin/comments', label: '评论' },
+  { href: '/admin/settings', label: '设置' }
+];
+---
+
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+  </head>
+  <body style="margin: 0; font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f4f6fb; color: #1b1f2a;">
+    <header style="position: sticky; top: 0; z-index: 10; background: #111827; color: #f9fafb; border-bottom: 1px solid #1f2937;">
+      <div style="max-width: 1080px; margin: 0 auto; padding: 0.9rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <div>
+          <div style="font-size: 1.05rem; font-weight: 700;">博客后台管理</div>
+          <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 0.15rem;">
+            {user ? `当前用户：${user.username}（${user.role}）` : '未登录'}
+          </div>
+        </div>
+
+        <form action="/api/auth/logout" method="post" style="margin: 0;">
+          <button type="submit" style="border: 0; background: #ef4444; color: white; padding: 0.45rem 0.8rem; border-radius: 0.45rem; cursor: pointer; font-weight: 600;">
+            退出登录
+          </button>
+        </form>
+      </div>
+
+      <nav style="max-width: 1080px; margin: 0 auto; padding: 0 1rem 0.85rem; display: flex; gap: 0.65rem; flex-wrap: wrap;">
+        {
+          navItems.map((item) => {
+            const active = currentPath === item.href;
+            return (
+              <a
+                href={item.href}
+                style={`text-decoration: none; padding: 0.34rem 0.62rem; border-radius: 0.45rem; font-size: 0.92rem; border: 1px solid ${active ? '#60a5fa' : '#374151'}; color: ${active ? '#dbeafe' : '#e5e7eb'}; background: ${active ? '#1d4ed8' : '#111827'};`}
+              >
+                {item.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+    </header>
+
+    <main style="max-width: 1080px; margin: 1.2rem auto; padding: 0 1rem 2rem;">
+      <section style="background: white; border: 1px solid #e5e7eb; border-radius: 0.7rem; padding: 1rem 1rem 1.2rem; box-shadow: 0 2px 12px rgba(17, 24, 39, 0.05);">
+        <slot />
+      </section>
+    </main>
+  </body>
+</html>

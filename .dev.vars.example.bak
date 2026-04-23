@@ -1,0 +1,10 @@
+# Cloudflare local runtime variable placeholders for `wrangler dev`
+# Copy to .dev.vars for local binding values.
+
+# D1 binding name `DB` is declared in wrangler.toml [[d1_databases]].
+# Do not define DB here; this file is not the source of D1 binding.
+
+# Optional placeholders for local tooling
+CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
+D1_DATABASE_ID=your_d1_database_id
+CLOUDFLARE_API_TOKEN=your_cloudflare_api_token

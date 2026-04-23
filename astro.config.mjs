@@ -7,6 +7,14 @@ import cloudflare from '@astrojs/cloudflare';
 export default defineConfig({
   site: 'https://isishey.pages.dev', // 请在这里替换成你未来的实际域名
   integrations: [sitemap()],
+  server: {
+    port: 4321
+  },
+  vite: {
+    server: {
+      strictPort: true
+    }
+  },
   output: 'hybrid', // 开启混合渲染（静态为主，部分动态API）
   adapter: cloudflare({
     platformProxy: {

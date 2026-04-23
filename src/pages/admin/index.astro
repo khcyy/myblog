@@ -1,0 +1,27 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const user = (Astro.locals as any).currentUser;
+if (!user) {
+  return Astro.redirect('/admin/login');
+}
+---
+
+<AdminLayout title="后台首页" currentPath={Astro.url.pathname}>
+  <h2 style="margin: 0 0 0.75rem;">后台首页</h2>
+  <p style="margin: 0.25rem 0;">状态：已进入后台。</p>
+  <p style="margin: 0.25rem 0;">用户 ID：{user.id}</p>
+  <p style="margin: 0.25rem 0;">GitHub ID：{user.githubId}</p>
+  <p style="margin: 0.25rem 0;">用户名：{user.username}</p>
+  <p style="margin: 0.25rem 0;">角色：{user.role}</p>
+  {
+    user.avatarUrl ? (
+      <p style="margin: 0.25rem 0;">
+        头像：<a href={user.avatarUrl} target="_blank" rel="noreferrer">{user.avatarUrl}</a>
+      </p>
+    ) : (
+      <p style="margin: 0.25rem 0;">头像：无</p>
+    )
+  }
+</AdminLayout>

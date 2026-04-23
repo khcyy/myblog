@@ -1,0 +1,27 @@
+import { and, eq } from 'drizzle-orm';
+import { siteSettings } from '../schema';
+import type { DbClient } from '../client';
+
+const DEFAULT_SETTINGS_ID = 1;
+
+export function createSettingsRepository(db: DbClient) {
+  return {
+    async getSingleton() {
+      const rows = await db
+        .select()
+        .from(siteSettings)
+        .where(eq(siteSettings.id, DEFAULT_SETTINGS_ID))
+        .limit(1);
+      return rows[0] ?? null;
+    },
+    async create(input: typeof siteSettings.$inferInsert) {
+      return db.insert(siteSettings).values({ id: DEFAULT_SETTINGS_ID, ...input });
+    },
+    async update(patch: Partial<typeof siteSettings.$inferInsert>) {
+      return db
+        .update(siteSettings)
+        .set(patch)
+        .where(and(eq(siteSettings.id, DEFAULT_SETTINGS_ID)));
+    }
+  };
+}

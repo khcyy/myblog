@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="后台 - 评论" currentPath={Astro.url.pathname}>
+  <h2 style="margin: 0 0 0.75rem;">评论管理</h2>
+  <p style="margin: 0; color: #4b5563;">这里用于审核评论与处理评论状态。</p>
+</AdminLayout>

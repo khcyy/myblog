@@ -1,0 +1,29 @@
+---
+export const prerender = false;
+const user = (Astro.locals as any).currentUser;
+const next = Astro.url.searchParams.get('next') ?? '/admin';
+const githubLoginHref = `/api/auth/github/login?next=${encodeURIComponent(next)}`;
+---
+
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Login</title>
+  </head>
+  <body>
+    <main style="max-width: 720px; margin: 3rem auto; font-family: sans-serif; line-height: 1.6;">
+      <h1>后台登录</h1>
+      {
+        user ? (
+          <p>当前已登录为 {user.username}，可直接进入 <a href="/admin">/admin</a>。</p>
+        ) : (
+          <p>请使用 GitHub 账号登录后台。</p>
+        )
+      }
+      <p>
+        <a href={githubLoginHref}>使用 GitHub 登录</a>
+      </p>
+    </main>
+  </body>
+</html>
