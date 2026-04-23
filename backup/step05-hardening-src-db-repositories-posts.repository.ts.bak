@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { posts } from '../schema';
 import type { DbClient } from '../client';
 
@@ -27,13 +27,7 @@ export function createPostsRepository(db: DbClient) {
       return db.insert(posts).values(input);
     },
     async update(id: number, patch: Partial<typeof posts.$inferInsert>) {
-      return db
-        .update(posts)
-        .set({
-          ...patch,
-          updatedAt: sql`CURRENT_TIMESTAMP`
-        })
-        .where(and(eq(posts.id, id)));
+      return db.update(posts).set(patch).where(and(eq(posts.id, id)));
     },
     async remove(id: number) {
       return db.delete(posts).where(eq(posts.id, id));

@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { posts } from '../schema';
 import type { DbClient } from '../client';
 
@@ -31,7 +31,7 @@ export function createPostsRepository(db: DbClient) {
         .update(posts)
         .set({
           ...patch,
-          updatedAt: sql`CURRENT_TIMESTAMP`
+          updatedAt: new Date().toISOString()
         })
         .where(and(eq(posts.id, id)));
     },

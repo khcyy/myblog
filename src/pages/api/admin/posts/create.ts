@@ -35,6 +35,11 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   }
 
   const repo = createPostsRepository(db);
+  const slugTaken = await repo.getBySlug(slug);
+  if (slugTaken) {
+    return new Response('Slug already exists, please use another slug', { status: 409 });
+  }
+
   await repo.create({
     title,
     slug,
