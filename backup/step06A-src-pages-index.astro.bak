@@ -1,6 +1,5 @@
 ﻿---
 import { getCollection } from 'astro:content';
-import { createPostsRepository, getDbClientFromLocals } from '../db';
 import Layout from '../layouts/Layout.astro';
 import SiteHeader from '../components/home/SiteHeader.astro';
 import HomeSection from '../components/home/HomeSection.astro';
@@ -9,8 +8,6 @@ import ProjectsSection from '../components/home/ProjectsSection.astro';
 import AboutSection from '../components/home/AboutSection.astro';
 import FriendsSection from '../components/home/FriendsSection.astro';
 import SiteFooter from '../components/common/SiteFooter.astro';
-
-export const prerender = false;
 
 type BlogPreview = {
   id: string;
@@ -30,21 +27,22 @@ type ProjectPreview = {
 
 const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
 
-const db = getDbClientFromLocals(Astro.locals as any);
-const postRepo = db ? createPostsRepository(db) : null;
-
-const posts: BlogPreview[] = postRepo
-  ? (await postRepo.listLatestPublished(5)).map((post) => {
-      const dateSource = post.publishedAt ?? post.updatedAt ?? post.createdAt;
-      return {
-        id: post.slug,
-        title: post.title,
-        description: post.summary ?? '',
-        date: dateSource ? new Date(dateSource).toISOString().slice(0, 10) : '',
-        tags: [],
-      };
-    })
-  : [];
+// 修复：安全获取 blog 文章（处理空日期）
+const posts: BlogPreview[] = (await getCollectionAny('blog'))
+  .filter(post => post.data.date) // 过滤掉没有日期的文章
+  .sort((a, b) => {
+    const dateA = new Date(a.data.date);
+    const dateB = new Date(b.data.date);
+    return dateB.getTime() - dateA.getTime();
+  })
+  .map((post) => ({
+    id: post.id.replace(/\.mdx?$/, ''),
+    title: post.data.title,
+    description: post.data.description,
+    date: new Date(post.data.date).toISOString().slice(0, 10),
+    tags: post.data.tags || [],
+  }))
+  .slice(0, 5);
 
 // 修复：安全获取 projects 项目（处理空日期）
 const projects: ProjectPreview[] = (await getCollectionAny('projects'))

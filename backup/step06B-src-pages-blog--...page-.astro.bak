@@ -1,42 +1,21 @@
 ---
-import { createPostsRepository, getDbClientFromLocals } from '../../db';
+import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 
-export const prerender = false;
+export async function getStaticPaths({ paginate }: any) {
+  const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
+  const allPosts = await getCollectionAny('blog');
+  
+  // 过滤并按日期倒序
+  const sortedPosts = allPosts
+    .filter(post => post.data.date)
+    .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
-const pageSize = 10;
-const rawPageParam = Astro.params.page;
-const pageParam = Array.isArray(rawPageParam) ? rawPageParam[0] : rawPageParam;
-const requestedPage = Number.parseInt(pageParam ?? '1', 10);
-const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  // Astro 内置分页函数，这里设置为每页 10 篇
+  return paginate(sortedPosts, { pageSize: 10 });
+}
 
-const db = getDbClientFromLocals(Astro.locals as any);
-const repo = db ? createPostsRepository(db) : null;
-
-const totalPosts = repo ? await repo.countPublished() : 0;
-const lastPage = Math.max(1, Math.ceil(totalPosts / pageSize));
-const safeCurrentPage = Math.min(currentPage, lastPage);
-
-const rows = repo ? await repo.listPublishedPage(safeCurrentPage, pageSize) : [];
-const data = rows.map((post) => ({
-  id: post.slug,
-  data: {
-    title: post.title,
-    description: post.summary ?? '',
-    date: post.publishedAt ?? '',
-    tags: [] as string[]
-  }
-}));
-
-const page = {
-  currentPage: safeCurrentPage,
-  lastPage,
-  data,
-  url: {
-    prev: safeCurrentPage > 1 ? (safeCurrentPage === 2 ? '/blog' : `/blog/${safeCurrentPage - 1}`) : null,
-    next: safeCurrentPage < lastPage ? `/blog/${safeCurrentPage + 1}` : null
-  }
-};
+const { page } = Astro.props as any;
 ---
 
 <Layout title={`笔记归档 - 第 ${page.currentPage} 页 - isishey blog`}>
@@ -56,11 +35,11 @@ const page = {
         <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line);">
           <div>
             <h3 style="margin: 0 0 10px; font-size: 20px;">
-              <a href={`/blog/${post.id}`}>{post.data.title}</a>
+              <a href={`/blog/${post.id.replace(/\.mdx?$/, '')}`}>{post.data.title}</a>
             </h3>
             <p style="margin: 0 0 12px; color: var(--sub); line-height: 1.6;">{post.data.description}</p>
             <div class="meta">
-              <span>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ''}</span>
+              <span>{new Date(post.data.date).toISOString().slice(0, 10)}</span>
               {post.data.tags?.map((t: string) => (
                 <a href={`/tags/${t}`} class="tag">#{t}</a>
               ))}
