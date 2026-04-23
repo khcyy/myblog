@@ -4,9 +4,6 @@ import type { DbClient } from '../client';
 
 export function createPostsRepository(db: DbClient) {
   return {
-    async listAll(limit = 200) {
-      return db.select().from(posts).orderBy(desc(posts.updatedAt)).limit(limit);
-    },
     async listPublished(limit = 20) {
       return db
         .select()
@@ -14,10 +11,6 @@ export function createPostsRepository(db: DbClient) {
         .where(eq(posts.status, 'published'))
         .orderBy(desc(posts.publishedAt))
         .limit(limit);
-    },
-    async getById(id: number) {
-      const rows = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
-      return rows[0] ?? null;
     },
     async getBySlug(slug: string) {
       const rows = await db.select().from(posts).where(eq(posts.slug, slug)).limit(1);
@@ -28,9 +21,6 @@ export function createPostsRepository(db: DbClient) {
     },
     async update(id: number, patch: Partial<typeof posts.$inferInsert>) {
       return db.update(posts).set(patch).where(and(eq(posts.id, id)));
-    },
-    async remove(id: number) {
-      return db.delete(posts).where(eq(posts.id, id));
     }
   };
 }

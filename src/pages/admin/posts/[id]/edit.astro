@@ -1,0 +1,67 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createPostsRepository, getDbClientFromLocals } from '../../../../db';
+
+const db = getDbClientFromLocals(Astro.locals as any);
+const postId = Number(Astro.params.id);
+
+if (!db) {
+  throw new Error('Database binding is missing');
+}
+
+if (!Number.isInteger(postId) || postId <= 0) {
+  return Astro.redirect('/admin/posts');
+}
+
+const repo = createPostsRepository(db);
+const post = await repo.getById(postId);
+
+if (!post) {
+  return Astro.redirect('/admin/posts');
+}
+---
+
+<AdminLayout title="后台 - 编辑文章" currentPath="/admin/posts">
+  <h2 style="margin: 0 0 0.75rem;">编辑文章 #{post.id}</h2>
+
+  <form method="post" action={`/api/admin/posts/${post.id}/update`} style="display: grid; gap: 0.75rem; max-width: 860px;">
+    <label style="display: grid; gap: 0.35rem;">
+      <span>标题</span>
+      <input name="title" required value={post.title} style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>Slug（唯一）</span>
+      <input name="slug" required value={post.slug} style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>摘要</span>
+      <textarea name="summary" rows="3" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;">{post.summary ?? ''}</textarea>
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>封面图 URL</span>
+      <input name="coverImage" value={post.coverImage ?? ''} style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>内容（Markdown）</span>
+      <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;">{post.content}</textarea>
+    </label>
+
+    <label style="display: inline-flex; align-items: center; gap: 0.4rem;">
+      <span>状态</span>
+      <select name="status" style="padding: 0.35rem; border: 1px solid #d1d5db; border-radius: 0.4rem;">
+        <option value="draft" selected={post.status !== 'published'}>draft</option>
+        <option value="published" selected={post.status === 'published'}>published</option>
+      </select>
+    </label>
+
+    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+      <button type="submit" style="border: 0; background: #2563eb; color: white; padding: 0.45rem 0.8rem; border-radius: 0.4rem; cursor: pointer;">保存修改</button>
+      <a href="/admin/posts" style="display: inline-block; text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; padding: 0.4rem 0.75rem; border-radius: 0.4rem;">返回列表</a>
+    </div>
+  </form>
+</AdminLayout>
