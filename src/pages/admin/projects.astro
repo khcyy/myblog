@@ -30,37 +30,45 @@ const projects = db ? await createProjectsRepository(db).listAll() : [];
         </tr>
       </thead>
       <tbody>
-        {
-          projects.length === 0 ? (
-            <tr>
-              <td colspan="6" style="padding: 0.75rem; border: 1px solid #e5e7eb; color: #6b7280;">暂无项目。</td>
-            </tr>
-          ) : (
-            projects.map((project) => (
-              <tr>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.id}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.title}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.slug}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.status}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.updatedAt}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
-                  <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
-                    <a href={`/admin/projects/${project.id}/edit`} style="text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem;">编辑</a>
+  {
+    projects.length === 0 ? (
+      <tr>
+        <td colspan="6" style="padding: 0.75rem; border: 1px solid #e5e7eb; color: #6b7280;">暂无项目。</td>
+      </tr>
+    ) : (
+      projects.map((project) => (
+        <tr>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.id}</td>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.title}</td>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.slug}</td>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.status}</td>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.updatedAt}</td>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
+            <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+              <a href={`/admin/projects/${project.id}/edit`} style="text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem;">
+                编辑
+              </a>
 
-                    <button type="button" style="border: 1px solid #cbd5e1; background: #f8fafc; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">
-                      {project.status === 'published' ? '转草稿' : '发布'}
-                    </button>
+              {/* 发布 / 转草稿（真正可用） */}
+              <form method="post" action={`/api/admin/projects/${project.id}/status?next=/admin/projects`} style="margin:0;">
+                <button type="submit" style="border: 1px solid #cbd5e1; background: #f8fafc; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">
+                  {project.status === 'published' ? '转草稿' : '发布'}
+                </button>
+              </form>
 
-                    <button type="button" style="border: 1px solid #fecaca; background: #fee2e2; color: #991b1b; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">
-                      删除
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
-          )
-        }
-      </tbody>
+              {/* 删除（真正可用） */}
+              <form method="post" action={`/api/admin/projects/${project.id}/delete`} style="margin:0;" onsubmit="return confirm('确定删除吗？')">
+                <button type="submit" style="border: 1px solid #fecaca; background: #fee2e2; color: #991b1b; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">
+                  删除
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      ))
+    )
+  }
+</tbody>
     </table>
   </div>
 </AdminLayout>

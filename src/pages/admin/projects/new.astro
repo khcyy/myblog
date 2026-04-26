@@ -1,0 +1,43 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="后台 - 新建项目" currentPath="/admin/projects">
+  <h2 style="margin: 0 0 0.75rem;">新建项目</h2>
+
+  <form method="post" action="/api/admin/projects/create" style="display: grid; gap: 0.75rem; max-width: 860px;">
+    <label style="display: grid; gap: 0.35rem;">
+      <span>标题</span>
+      <input name="title" required style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>Slug（唯一）</span>
+      <input name="slug" required style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>摘要</span>
+      <textarea name="summary" rows="3" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;"></textarea>
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>内容（Markdown）</span>
+      <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;"></textarea>
+    </label>
+
+    <label style="display: inline-flex; align-items: center; gap: 0.4rem;">
+      <span>状态</span>
+      <select name="status" style="padding: 0.35rem; border: 1px solid #d1d5db; border-radius: 0.4rem;">
+        <option value="draft" selected>draft</option>
+        <option value="published">published</option>
+      </select>
+    </label>
+
+    <div style="display: flex; gap: 0.6rem;">
+      <button type="submit" style="border: 0; background: #2563eb; color: white; padding: 0.45rem 0.8rem; border-radius: 0.4rem; cursor: pointer;">保存项目</button>
+      <a href="/admin/projects" style="display: inline-block; text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; padding: 0.4rem 0.75rem; border-radius: 0.4rem;">返回列表</a>
+    </div>
+  </form>
+</AdminLayout>
