@@ -1,9 +1,75 @@
 ---
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createCommentsRepository, getDbClientFromLocals } from '../../db';
+
+const db = getDbClientFromLocals(Astro.locals as any);
+const comments = db ? await createCommentsRepository(db).listAll() : [];
 ---
 
 <AdminLayout title="后台 - 评论" currentPath={Astro.url.pathname}>
-  <h2 style="margin: 0 0 0.75rem;">评论管理</h2>
-  <p style="margin: 0; color: #4b5563;">这里用于审核评论与处理评论状态。</p>
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+    <h2 style="margin: 0;">评论管理</h2>
+  </div>
+
+  {
+    db ? null : <p style="margin: 0.4rem 0; color: #b91c1c;">数据库绑定缺失，无法加载评论列表。</p>
+  }
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 980px;">
+      <thead>
+        <tr style="background: #f3f4f6;">
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">ID</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">目标</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">作者</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">邮箱</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">内容</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">状态</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">创建时间</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          comments.length === 0 ? (
+            <tr>
+              <td colspan="8" style="padding: 0.75rem; border: 1px solid #e5e7eb; color: #6b7280;">暂无评论</td>
+            </tr>
+          ) : (
+            comments.map((comment) => (
+              <tr>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.id}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
+                  {comment.targetType || '-'} /
+                  {comment.targetId != null ? ` #${comment.targetId}` : ''}
+                  {comment.postSlug ? ` @${comment.postSlug}` : ''}
+                </td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.author || comment.nickname || '-'}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.email || '-'}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb; white-space: pre-wrap; word-break: break-word;">{comment.content}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.status}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.createdAt}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
+                  <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+                    <form method="post" action={`/api/admin/comments/${comment.id}/approve`} style="margin: 0;">
+                      <button type="submit" style="border: 1px solid #cbd5e1; background: #f8fafc; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">approve</button>
+                    </form>
+
+                    <form method="post" action={`/api/admin/comments/${comment.id}/reject`} style="margin: 0;">
+                      <button type="submit" style="border: 1px solid #cbd5e1; background: #f8fafc; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">reject</button>
+                    </form>
+
+                    <form method="post" action={`/api/admin/comments/${comment.id}/delete`} style="margin: 0;" onsubmit="return confirm('确定删除这条评论吗？');">
+                      <button type="submit" style="border: 1px solid #fecaca; background: #fee2e2; color: #991b1b; border-radius: 0.35rem; padding: 0.2rem 0.45rem; cursor: pointer;">delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )
+        }
+      </tbody>
+    </table>
+  </div>
 </AdminLayout>

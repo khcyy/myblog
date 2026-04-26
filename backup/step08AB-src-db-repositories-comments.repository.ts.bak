@@ -1,12 +1,9 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { comments } from '../schema';
 import type { DbClient } from '../client';
 
 export function createCommentsRepository(db: DbClient) {
   return {
-    async listAll(limit = 200) {
-      return db.select().from(comments).orderBy(desc(comments.createdAt)).limit(limit);
-    },
     async listPublished(targetType: 'post' | 'project', targetId: number, limit = 50) {
       return db
         .select()
@@ -29,16 +26,7 @@ export function createCommentsRepository(db: DbClient) {
       return db.insert(comments).values(input);
     },
     async update(id: number, patch: Partial<typeof comments.$inferInsert>) {
-      return db
-        .update(comments)
-        .set({
-          ...patch,
-          updatedAt: sql`CURRENT_TIMESTAMP`
-        })
-        .where(and(eq(comments.id, id)));
-    },
-    async remove(id: number) {
-      return db.delete(comments).where(eq(comments.id, id));
+      return db.update(comments).set(patch).where(and(eq(comments.id, id)));
     }
   };
 }
