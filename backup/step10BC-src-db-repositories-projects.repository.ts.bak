@@ -1,4 +1,4 @@
-import { and, count, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { projects } from '../schema';
 import type { DbClient } from '../client';
 
@@ -12,28 +12,8 @@ export function createProjectsRepository(db: DbClient) {
         .select()
         .from(projects)
         .where(eq(projects.status, 'published'))
-        .orderBy(desc(projects.publishedAt), desc(projects.updatedAt))
+        .orderBy(desc(projects.publishedAt))
         .limit(limit);
-    },
-    async listPublishedPage(page = 1, pageSize = 10) {
-      const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
-      const safePageSize = Number.isFinite(pageSize) && pageSize > 0 ? Math.floor(pageSize) : 10;
-      const offset = (safePage - 1) * safePageSize;
-
-      return db
-        .select()
-        .from(projects)
-        .where(eq(projects.status, 'published'))
-        .orderBy(desc(projects.publishedAt), desc(projects.updatedAt))
-        .limit(safePageSize)
-        .offset(offset);
-    },
-    async countPublished() {
-      const rows = await db
-        .select({ total: count() })
-        .from(projects)
-        .where(eq(projects.status, 'published'));
-      return Number(rows[0]?.total ?? 0);
     },
     async listLatestPublished(limit = 5) {
       return db
@@ -49,14 +29,6 @@ export function createProjectsRepository(db: DbClient) {
     },
     async getBySlug(slug: string) {
       const rows = await db.select().from(projects).where(eq(projects.slug, slug)).limit(1);
-      return rows[0] ?? null;
-    },
-    async getPublishedBySlug(slug: string) {
-      const rows = await db
-        .select()
-        .from(projects)
-        .where(and(eq(projects.slug, slug), eq(projects.status, 'published')))
-        .limit(1);
       return rows[0] ?? null;
     },
     async create(input: typeof projects.$inferInsert) {

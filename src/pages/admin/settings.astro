@@ -1,9 +1,72 @@
 ---
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createSettingsRepository, getDbClientFromLocals } from '../../db';
+
+const db = getDbClientFromLocals(Astro.locals as any);
+const repo = db ? createSettingsRepository(db) : null;
+const settings = repo ? await repo.getSingleton() : null;
+
+const fallbackSettings = {
+  siteName: 'My Blog',
+  siteDescription: '',
+  homepageIntro: ''
+};
+
+const formValues = settings ?? fallbackSettings;
 ---
 
 <AdminLayout title="后台 - 设置" currentPath={Astro.url.pathname}>
   <h2 style="margin: 0 0 0.75rem;">站点设置</h2>
   <p style="margin: 0; color: #4b5563;">这里用于维护后台可配置的站点信息。</p>
+
+  {
+    db ? null : <p style="margin: 0.65rem 0 0; color: #b91c1c;">数据库绑定缺失，无法读取或保存设置。</p>
+  }
+
+  {
+    db && !settings ? (
+      <p style="margin: 0.65rem 0 0; color: #6b7280;">尚未初始化设置，保存后将自动创建默认记录。</p>
+    ) : null
+  }
+
+  <form method="post" action="/api/admin/settings/update" style="margin-top: 1rem; display: grid; gap: 0.85rem;">
+    <label style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      站点名称
+      <input
+        type="text"
+        name="siteName"
+        required
+        value={formValues.siteName}
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem;"
+      />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      站点描述
+      <textarea
+        name="siteDescription"
+        rows={3}
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem; resize: vertical;"
+      >{formValues.siteDescription}</textarea>
+    </label>
+
+    <label style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      首页介绍
+      <textarea
+        name="homepageIntro"
+        rows={4}
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem; resize: vertical;"
+      >{formValues.homepageIntro}</textarea>
+    </label>
+
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <button
+        type="submit"
+        style="border: 0; background: #2563eb; color: white; padding: 0.5rem 0.9rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer;"
+      >
+        保存设置
+      </button>
+    </div>
+  </form>
 </AdminLayout>

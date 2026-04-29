@@ -1,28 +1,35 @@
 ---
-import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { createProjectsRepository, getDbClientFromLocals } from '../../db';
 
-export async function getStaticPaths() {
-  const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
-  const projects = await getCollectionAny('projects');
-  return projects.map((project) => ({
-    params: { id: project.id.replace(/\.mdx?$/, '') },
-    props: { project },
-  }));
+export const prerender = false;
+
+const slug = Astro.params.id;
+const db = getDbClientFromLocals(Astro.locals as any);
+const repo = db ? createProjectsRepository(db) : null;
+
+if (!repo || !slug) {
+  throw new Response('Not found', { status: 404 });
 }
 
-const { project } = Astro.props;
-const { Content } = await render(project);
+const project = await repo.getPublishedBySlug(slug);
 
-// Format the date since it comes out of Zod as a Date object
-const dateStr = new Date(project.data.date).toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-});
+if (!project) {
+  throw new Response('Not found', { status: 404 });
+}
+
+const summary = project.summary ?? '';
+const dateSource = project.publishedAt ?? project.updatedAt ?? project.createdAt;
+const dateStr = dateSource
+  ? new Date(dateSource).toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  : '';
 ---
 
-<Layout title={`${project.data.title} - Project`}>
+<Layout title={`${project.title} - Project`}>
   <div class="shell page-shell">
     <div class="topbar">
       <div class="topbar-inner" style="justify-content: flex-start; padding: 12px 24px;">
@@ -32,18 +39,15 @@ const dateStr = new Date(project.data.date).toLocaleDateString('zh-CN', {
     
     <main class="panel article-panel">
       <header class="article-header">
-        <h1>{project.data.title}</h1>
-        <p class="summary">{project.data.summary}</p>
+        <h1>{project.title}</h1>
+        <p class="summary">{summary}</p>
         <div class="meta">
           <span>{dateStr}</span>
-          {project.data.stack?.map((item: string) => (
-             <span class="tag">{item}</span>
-          ))}
         </div>
       </header>
 
-      <article class="prose">
-        <Content />
+      <article class="prose" style="white-space: pre-wrap;">
+        {project.content}
       </article>
 
       <!-- Giscus 评论区 -->
