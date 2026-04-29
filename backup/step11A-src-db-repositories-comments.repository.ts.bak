@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { comments } from '../schema';
 import type { DbClient } from '../client';
 
@@ -19,28 +19,6 @@ export function createCommentsRepository(db: DbClient) {
           )
         )
         .orderBy(desc(comments.createdAt))
-        .limit(limit);
-    },
-    async listApprovedByPostSlug(postSlug: string, limit = 50) {
-      return db
-        .select()
-        .from(comments)
-        .where(and(eq(comments.postSlug, postSlug), eq(comments.status, 'approved')))
-        .orderBy(asc(comments.createdAt))
-        .limit(limit);
-    },
-    async listApprovedByTarget(targetType: 'post' | 'project', targetId: number, limit = 50) {
-      return db
-        .select()
-        .from(comments)
-        .where(
-          and(
-            eq(comments.targetType, targetType),
-            eq(comments.targetId, targetId),
-            eq(comments.status, 'approved')
-          )
-        )
-        .orderBy(asc(comments.createdAt))
         .limit(limit);
     },
     async getById(id: number) {

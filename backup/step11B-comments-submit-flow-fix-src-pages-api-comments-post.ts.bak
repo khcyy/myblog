@@ -7,26 +7,6 @@ function normalizeText(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-function getSafeRedirect(redirectTo: string, referer: string | null) {
-  const allowPath = (value: string) => value.startsWith('/blog/') || value.startsWith('/projects/');
-
-  if (redirectTo && allowPath(redirectTo)) {
-    const url = new URL(redirectTo, 'http://local');
-    url.searchParams.set('commented', '1');
-    return url.pathname + url.search;
-  }
-
-  if (referer) {
-    const url = new URL(referer);
-    if (allowPath(url.pathname)) {
-      url.searchParams.set('commented', '1');
-      return url.pathname + url.search;
-    }
-  }
-
-  return '';
-}
-
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const contentType = request.headers.get('content-type') ?? '';
@@ -49,18 +29,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const targetType = normalizeText(body.targetType ?? body.target_type) || (postSlug ? 'post' : '');
     const targetIdRaw = normalizeText(body.targetId ?? body.target_id);
     const targetId = targetIdRaw ? Number(targetIdRaw) : null;
-    const redirectToRaw = normalizeText(body.redirectTo ?? body.redirect_to);
-
-    console.log('[comments.post]', {
-      method: request.method,
-      contentType,
-      redirectTo: redirectToRaw,
-      postSlug,
-      targetType,
-      targetId,
-      author,
-      hasContent: Boolean(content)
-    });
 
     if (!author || !content) {
       return new Response('请填写必须的字段（昵称、评论内容）', { status: 400 });
@@ -76,7 +44,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const repo = createCommentsRepository(db);
-    console.log('[comments.post] before insert');
     await repo.create({
       targetType: targetType || 'post',
       targetId: targetType === 'project' ? targetId : null,
@@ -87,18 +54,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
       content,
       status: 'pending'
     });
-    console.log('[comments.post] insert success');
 
     const referer = request.headers.get('referer');
-    const safeRedirect = getSafeRedirect(redirectToRaw, referer);
-    if (safeRedirect) {
-      return new Response(null, { status: 303, headers: { Location: safeRedirect } });
+    if (referer) {
+      const url = new URL(referer);
+      url.searchParams.set('commented', '1');
+      return Response.redirect(url.toString(), 302);
     }
 
     return new Response('评论已提交，等待审核', { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.log('[comments.post] insert error', message);
     return new Response('服务器内部错误：' + message, { status: 500 });
   }
 };

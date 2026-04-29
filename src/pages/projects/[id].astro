@@ -1,12 +1,13 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { createProjectsRepository, getDbClientFromLocals } from '../../db';
+import { createCommentsRepository, createProjectsRepository, getDbClientFromLocals } from '../../db';
 
 export const prerender = false;
 
 const slug = Astro.params.id;
 const db = getDbClientFromLocals(Astro.locals as any);
 const repo = db ? createProjectsRepository(db) : null;
+const commentsRepo = db ? createCommentsRepository(db) : null;
 
 if (!repo || !slug) {
   throw new Response('Not found', { status: 404 });
@@ -18,6 +19,10 @@ if (!project) {
   throw new Response('Not found', { status: 404 });
 }
 
+const comments = commentsRepo
+  ? await commentsRepo.listApprovedByTarget('project', project.id)
+  : [];
+
 const summary = project.summary ?? '';
 const dateSource = project.publishedAt ?? project.updatedAt ?? project.createdAt;
 const dateStr = dateSource
@@ -26,6 +31,10 @@ const dateStr = dateSource
       month: 'long',
       day: 'numeric'
     })
+  : '';
+
+const commentNotice = Astro.url.searchParams.get('commented') === '1'
+  ? '评论已提交，等待审核。'
   : '';
 ---
 
@@ -50,27 +59,42 @@ const dateStr = dateSource
         {project.content}
       </article>
 
-      <!-- Giscus 评论区 -->
       <section class="comments-section" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--line);">
         <h3 style="margin-bottom: 1.5rem;">评论 / Comments</h3>
-        <p style="color: var(--sub); font-size: 14px; margin-bottom: 2rem;">
-          💡 提示：请前往 <a href="https://giscus.app/zh-CN" target="_blank" style="text-decoration: underline;">giscus.app</a> 并按照提示关联你的 GitHub 仓库，然后把下方 script 标签中的 data-repo、data-repo-id 等参数替换为你自己的。
-        </p>
-        <script src="https://giscus.app/client.js"
-          data-repo="YOUR_GITHUB_NAME/YOUR_REPO_NAME"
-          data-repo-id="YOUR_REPO_ID"
-          data-category="Announcements"
-          data-category-id="YOUR_CATEGORY_ID"
-          data-mapping="pathname"
-          data-strict="0"
-          data-reactions-enabled="1"
-          data-emit-metadata="0"
-          data-input-position="bottom"
-          data-theme="preferred_color_scheme"
-          data-lang="zh-CN"
-          crossorigin="anonymous"
-          async>
-        </script>
+        {commentNotice ? (
+          <p style="margin: 0 0 1rem; color: #0f766e;">{commentNotice}</p>
+        ) : null}
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+          {comments.length === 0 ? (
+            <p style="color: var(--sub); font-size: 0.9rem;">暂无评论。</p>
+          ) : (
+            comments.map((comment) => (
+              <div style="padding: 1.2rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--paper) 40%, transparent);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; align-items: center;">
+                  <strong style="font-size: 1.05rem;">{comment.author ?? comment.nickname ?? '匿名'}</strong>
+                  <span style="font-size: 0.8rem; color: var(--sub);">{new Date(comment.createdAt).toLocaleString()}</span>
+                </div>
+                <p style="margin: 0; line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem;">{comment.content}</p>
+              </div>
+            ))
+          )}
+        </div>
+
+        <form method="post" action="/api/comments/post" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+          <input type="hidden" name="targetType" value="project" />
+          <input type="hidden" name="targetId" value={project.id} />
+          <input type="hidden" name="redirectTo" value={Astro.url.pathname} />
+          <div style="display: flex; gap: 1rem;">
+            <input type="text" name="author" placeholder="昵称 (必填)" required style="flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit;" />
+            <input type="email" name="email" placeholder="邮箱 (选填)" style="flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit;" />
+          </div>
+          <textarea name="content" placeholder="分享你的看法..." required rows="4" style="padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit; resize: vertical;"></textarea>
+          <div>
+            <button type="submit" style="padding: 0.6rem 1.5rem; border: none; border-radius: 8px; background: var(--text); color: var(--bg); font-weight: bold; cursor: pointer; transition: opacity 0.2s;">
+              提交评论
+            </button>
+          </div>
+        </form>
       </section>
     </main>
   </div>

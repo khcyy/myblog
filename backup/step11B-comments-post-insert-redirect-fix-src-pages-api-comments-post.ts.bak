@@ -76,7 +76,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const repo = createCommentsRepository(db);
-    console.log('[comments.post] before insert');
     await repo.create({
       targetType: targetType || 'post',
       targetId: targetType === 'project' ? targetId : null,
@@ -87,18 +86,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
       content,
       status: 'pending'
     });
-    console.log('[comments.post] insert success');
 
     const referer = request.headers.get('referer');
     const safeRedirect = getSafeRedirect(redirectToRaw, referer);
     if (safeRedirect) {
-      return new Response(null, { status: 303, headers: { Location: safeRedirect } });
+      return Response.redirect(safeRedirect, 302);
     }
 
     return new Response('评论已提交，等待审核', { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.log('[comments.post] insert error', message);
     return new Response('服务器内部错误：' + message, { status: 500 });
   }
 };
