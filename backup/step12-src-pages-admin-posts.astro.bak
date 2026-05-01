@@ -5,15 +5,6 @@ import { createPostsRepository, getDbClientFromLocals } from '../../db';
 
 const db = getDbClientFromLocals(Astro.locals as any);
 const posts = db ? await createPostsRepository(db).listAll() : [];
-const successKey = Astro.url.searchParams.get('success');
-const successMessages: Record<string, string> = {
-  created: '已创建文章',
-  updated: '已更新文章',
-  deleted: '已删除文章',
-  published: '已发布文章',
-  drafted: '已转为草稿'
-};
-const successMessage = successKey ? successMessages[successKey] : '';
 ---
 
 <AdminLayout title="后台 - 文章" currentPath={Astro.url.pathname}>
@@ -21,14 +12,6 @@ const successMessage = successKey ? successMessages[successKey] : '';
     <h2 style="margin: 0;">文章管理</h2>
     <a href="/admin/posts/new" style="display: inline-block; text-decoration: none; background: #2563eb; color: white; padding: 0.45rem 0.75rem; border-radius: 0.45rem; font-weight: 600;">新建文章</a>
   </div>
-
-  {
-    successMessage ? (
-      <div style="margin-bottom: 0.75rem; padding: 0.6rem 0.75rem; background: #ecfdf3; border: 1px solid #bbf7d0; color: #166534; border-radius: 0.45rem;">
-        {successMessage}
-      </div>
-    ) : null
-  }
 
   {
     db ? null : <p style="margin: 0.4rem 0; color: #b91c1c;">数据库绑定缺失，无法加载文章列表。</p>

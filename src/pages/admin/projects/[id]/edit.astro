@@ -20,10 +20,27 @@ const project = await repo.getById(projectId);
 if (!project) {
   return Astro.redirect('/admin/projects');
 }
+
+const errorKey = Astro.url.searchParams.get('error');
+const errorMessages: Record<string, string> = {
+  missing_title: '请填写标题。',
+  missing_slug: '请填写 slug。',
+  missing_content: '请填写内容。',
+  slug_taken: '这个 slug 已被占用，请换一个更独特的标识。'
+};
+const errorMessage = errorKey ? errorMessages[errorKey] : '';
 ---
 
 <AdminLayout title="后台 - 编辑项目" currentPath="/admin/projects">
   <h2 style="margin: 0 0 0.75rem;">编辑项目 #{project.id}</h2>
+
+  {
+    errorMessage ? (
+      <div style="margin-bottom: 0.75rem; padding: 0.6rem 0.75rem; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 0.45rem;">
+        {errorMessage}
+      </div>
+    ) : null
+  }
 
   <form method="post" action={`/api/admin/projects/${project.id}/update`} style="display: grid; gap: 0.75rem; max-width: 860px;">
     <label style="display: grid; gap: 0.35rem;">

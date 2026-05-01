@@ -1,29 +1,12 @@
 ---
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
-
-const errorKey = Astro.url.searchParams.get('error');
-const errorMessages: Record<string, string> = {
-  missing_title: '请填写标题。',
-  missing_slug: '请填写 slug。',
-  missing_content: '请填写内容。',
-  slug_taken: '这个 slug 已被占用，请换一个更独特的标识。'
-};
-const errorMessage = errorKey ? errorMessages[errorKey] : '';
 ---
 
-<AdminLayout title="后台 - 新建项目" currentPath="/admin/projects">
-  <h2 style="margin: 0 0 0.75rem;">新建项目</h2>
+<AdminLayout title="后台 - 新建文章" currentPath="/admin/posts">
+  <h2 style="margin: 0 0 0.75rem;">新建文章</h2>
 
-  {
-    errorMessage ? (
-      <div style="margin-bottom: 0.75rem; padding: 0.6rem 0.75rem; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; border-radius: 0.45rem;">
-        {errorMessage}
-      </div>
-    ) : null
-  }
-
-  <form method="post" action="/api/admin/projects/create" style="display: grid; gap: 0.75rem; max-width: 860px;">
+  <form method="post" action="/api/admin/posts/create" style="display: grid; gap: 0.75rem; max-width: 860px;">
     <label style="display: grid; gap: 0.35rem;">
       <span>标题</span>
       <input name="title" required style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
@@ -40,6 +23,11 @@ const errorMessage = errorKey ? errorMessages[errorKey] : '';
     </label>
 
     <label style="display: grid; gap: 0.35rem;">
+      <span>封面图 URL</span>
+      <input name="coverImage" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
       <span>内容（Markdown）</span>
       <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;"></textarea>
     </label>
@@ -53,8 +41,8 @@ const errorMessage = errorKey ? errorMessages[errorKey] : '';
     </label>
 
     <div style="display: flex; gap: 0.6rem;">
-      <button type="submit" style="border: 0; background: #2563eb; color: white; padding: 0.45rem 0.8rem; border-radius: 0.4rem; cursor: pointer;">保存项目</button>
-      <a href="/admin/projects" style="display: inline-block; text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; padding: 0.4rem 0.75rem; border-radius: 0.4rem;">返回列表</a>
+      <button type="submit" style="border: 0; background: #2563eb; color: white; padding: 0.45rem 0.8rem; border-radius: 0.4rem; cursor: pointer;">保存文章</button>
+      <a href="/admin/posts" style="display: inline-block; text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; padding: 0.4rem 0.75rem; border-radius: 0.4rem;">返回列表</a>
     </div>
   </form>
 </AdminLayout>

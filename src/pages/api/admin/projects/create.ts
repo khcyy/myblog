@@ -29,14 +29,20 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const content = typeof formData.get('content') === 'string' ? String(formData.get('content')) : '';
   const status = toStatus(formData.get('status'));
 
-  if (!title || !slug || !content.trim()) {
-    return new Response('title, slug and content are required', { status: 400 });
+  if (!title) {
+    return redirect('/admin/projects/new?error=missing_title', 302);
+  }
+  if (!slug) {
+    return redirect('/admin/projects/new?error=missing_slug', 302);
+  }
+  if (!content.trim()) {
+    return redirect('/admin/projects/new?error=missing_content', 302);
   }
 
   const repo = createProjectsRepository(db);
   const slugTaken = await repo.getBySlug(slug);
   if (slugTaken) {
-    return new Response('Slug already exists, please use another slug', { status: 409 });
+    return redirect('/admin/projects/new?error=slug_taken', 302);
   }
 
   await repo.create({
@@ -48,5 +54,5 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     publishedAt: status === 'published' ? new Date().toISOString() : null
   });
 
-  return redirect('/admin/projects', 302);
+  return redirect('/admin/projects?success=created', 302);
 };

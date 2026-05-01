@@ -3,15 +3,7 @@ import { createPostsRepository, getDbClientFromLocals } from '../../../../../db'
 
 export const prerender = false;
 
-function resolveNext(url: URL) {
-  const next = url.searchParams.get('next');
-  if (!next || !next.startsWith('/admin')) {
-    return '/admin/posts';
-  }
-  return next;
-}
-
-export const POST: APIRoute = async ({ params, request, locals, redirect }) => {
+export const POST: APIRoute = async ({ params, locals, redirect }) => {
   const currentUser = (locals as any).currentUser;
   if (!currentUser || currentUser.role !== 'admin') {
     return new Response('Forbidden', { status: 403 });
@@ -39,6 +31,6 @@ export const POST: APIRoute = async ({ params, request, locals, redirect }) => {
     publishedAt: nextStatus === 'published' ? existing.publishedAt ?? new Date().toISOString() : null
   });
 
-  const nextUrl = resolveNext(new URL(request.url));
-  return redirect(nextUrl, 302);
+  const success = nextStatus === 'published' ? 'published' : 'drafted';
+  return redirect(`/admin/posts?success=${success}`, 302);
 };

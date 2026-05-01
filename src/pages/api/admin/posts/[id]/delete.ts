@@ -22,5 +22,5 @@ export const POST: APIRoute = async ({ params, locals, redirect }) => {
   const repo = createPostsRepository(db);
   await repo.remove(postId);
 
-  return redirect('/admin/posts', 302);
+  return redirect('/admin/posts?success=deleted', 302);
 };

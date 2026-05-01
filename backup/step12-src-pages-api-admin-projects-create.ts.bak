@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { createPostsRepository, getDbClientFromLocals } from '../../../../db';
+import { createProjectsRepository, getDbClientFromLocals } from '../../../../db';
 
 export const prerender = false;
 
@@ -27,23 +27,16 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const slug = normalizeText(formData.get('slug'));
   const summary = normalizeText(formData.get('summary'));
   const content = typeof formData.get('content') === 'string' ? String(formData.get('content')) : '';
-  const coverImage = normalizeText(formData.get('coverImage'));
   const status = toStatus(formData.get('status'));
 
-  if (!title) {
-    return redirect('/admin/posts/new?error=missing_title', 302);
-  }
-  if (!slug) {
-    return redirect('/admin/posts/new?error=missing_slug', 302);
-  }
-  if (!content.trim()) {
-    return redirect('/admin/posts/new?error=missing_content', 302);
+  if (!title || !slug || !content.trim()) {
+    return new Response('title, slug and content are required', { status: 400 });
   }
 
-  const repo = createPostsRepository(db);
+  const repo = createProjectsRepository(db);
   const slugTaken = await repo.getBySlug(slug);
   if (slugTaken) {
-    return redirect('/admin/posts/new?error=slug_taken', 302);
+    return new Response('Slug already exists, please use another slug', { status: 409 });
   }
 
   await repo.create({
@@ -51,10 +44,9 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     slug,
     summary: summary || null,
     content,
-    coverImage: coverImage || null,
     status,
     publishedAt: status === 'published' ? new Date().toISOString() : null
   });
 
-  return redirect('/admin/posts?success=created', 302);
+  return redirect('/admin/projects', 302);
 };
