@@ -27,7 +27,7 @@ const { posts } = Astro.props;
           <p>{post.description}</p>
           <div class="meta">
             <span>{post.date}</span>
-            {post.tags.map((tag: string) => <a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>)}
+            {post.tags.map((tag: string) => <a href={`/tags/${tag}`} class="tag">#{tag}</a>)}
           </div>
         </div>
       </article>

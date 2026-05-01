@@ -11,6 +11,19 @@ function normalizeText(value: FormDataEntryValue | null) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+function normalizeTags(value: FormDataEntryValue | null) {
+  if (typeof value !== 'string') {
+    return [] as string[];
+  }
+
+  const cleaned = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(cleaned));
+}
+
 export const POST: APIRoute = async ({ params, request, locals, redirect }) => {
   const currentUser = (locals as any).currentUser;
   if (!currentUser || currentUser.role !== 'admin') {
@@ -34,6 +47,7 @@ export const POST: APIRoute = async ({ params, request, locals, redirect }) => {
   const content = typeof formData.get('content') === 'string' ? String(formData.get('content')) : '';
   const coverImage = normalizeText(formData.get('coverImage'));
   const status = toStatus(formData.get('status'));
+  const tags = normalizeTags(formData.get('tags'));
 
   if (!title) {
     return redirect(`/admin/posts/${postId}/edit?error=missing_title`, 302);
@@ -68,6 +82,7 @@ export const POST: APIRoute = async ({ params, request, locals, redirect }) => {
     content,
     coverImage: coverImage || null,
     status,
+    tags,
     publishedAt
   });
 

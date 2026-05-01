@@ -24,7 +24,7 @@ const data = rows.map((post) => ({
     title: post.title,
     description: post.summary ?? '',
     date: post.publishedAt ?? '',
-    tags: [] as string[]
+    tags: post.tags ?? []
   }
 }));
 
@@ -62,7 +62,7 @@ const page = {
             <div class="meta">
               <span>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ''}</span>
               {post.data.tags?.map((t: string) => (
-                <a href={`/tags/${t}`} class="tag">#{t}</a>
+                <a href={`/blog/tag/${t}`} class="tag">#{t}</a>
               ))}
             </div>
           </div>

@@ -29,6 +29,7 @@ const errorMessages: Record<string, string> = {
   slug_taken: '这个 slug 已被占用，请换一个更独特的标识。'
 };
 const errorMessage = errorKey ? errorMessages[errorKey] : '';
+const tagsValue = post.tags?.length ? post.tags.join(', ') : '';
 ---
 
 <AdminLayout title="后台 - 编辑文章" currentPath="/admin/posts">
@@ -66,6 +67,11 @@ const errorMessage = errorKey ? errorMessages[errorKey] : '';
     <label style="display: grid; gap: 0.35rem;">
       <span>内容（Markdown）</span>
       <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;">{post.content}</textarea>
+    </label>
+
+    <label style="display: grid; gap: 0.35rem;">
+      <span>标签（英文逗号分隔）</span>
+      <input name="tags" value={tagsValue} placeholder="astro, cloudflare, d1" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
     </label>
 
     <label style="display: inline-flex; align-items: center; gap: 0.4rem;">

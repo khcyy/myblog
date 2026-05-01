@@ -1,0 +1,59 @@
+---
+import { createPostsRepository, getDbClientFromLocals } from '../../../db';
+import Layout from '../../../layouts/Layout.astro';
+
+export const prerender = false;
+
+const rawTag = Astro.params.tag ?? '';
+const currentTag = rawTag ? decodeURIComponent(rawTag) : '';
+
+const db = getDbClientFromLocals(Astro.locals as any);
+const repo = db ? createPostsRepository(db) : null;
+
+const rows = repo && currentTag ? await repo.listPublishedByTag(currentTag, 1, 50) : [];
+const posts = rows.map((post) => ({
+  id: post.slug,
+  title: post.title,
+  description: post.summary ?? '',
+  date: post.publishedAt ?? post.updatedAt ?? post.createdAt,
+  tags: post.tags ?? []
+}));
+---
+
+<Layout title={currentTag ? `标签: ${currentTag} - Blog` : '标签 - Blog'}>
+  <div class="shell" style="max-width: 800px; margin-top: 40px;">
+    <div class="topbar-inner" style="display: inline-flex; margin-bottom: 40px; padding: 10px 20px;">
+      <a href="/blog" style="font-weight: bold; color: var(--text);">&larr; 返回博客</a>
+    </div>
+
+    <header style="margin-bottom: 40px;">
+      <h1 style="font-size: 36px; margin: 0 0 10px;">标签: {currentTag || '未指定'}</h1>
+      <p style="color: var(--sub); font-size: 16px;">共 {posts.length} 篇已发布文章</p>
+    </header>
+
+    <div class="list" style="display: flex; flex-direction: column; gap: 16px;">
+      {posts.length === 0 ? (
+        <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line); color: var(--sub);">
+          暂无相关文章。
+        </article>
+      ) : (
+        posts.map((post) => (
+          <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line);">
+            <div>
+              <h3 style="margin: 0 0 10px; font-size: 20px;">
+                <a href={`/blog/${post.id}`}>{post.title}</a>
+              </h3>
+              <p style="margin: 0 0 12px; color: var(--sub); line-height: 1.6;">{post.description}</p>
+              <div class="meta">
+                <span>{post.date ? new Date(post.date).toISOString().slice(0, 10) : ''}</span>
+                {post.tags?.map((tag: string) => (
+                  <a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      )}
+    </div>
+  </div>
+</Layout>

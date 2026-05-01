@@ -49,7 +49,7 @@ const posts: BlogPreview[] = postRepo
         title: post.title,
         description: post.summary ?? '',
         date: dateSource ? new Date(dateSource).toISOString().slice(0, 10) : '',
-        tags: post.tags ?? [],
+        tags: [],
       };
     })
   : [];

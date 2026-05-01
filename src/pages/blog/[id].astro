@@ -19,7 +19,7 @@ const post = row
       slug: row.slug,
       data: {
         title: row.title,
-        tags: [] as string[],
+        tags: row.tags ?? [],
         date: row.publishedAt ?? row.updatedAt ?? row.createdAt,
         content: row.content ?? ''
       }
@@ -61,9 +61,11 @@ const commentNotice = Astro.url.searchParams.get('commented') === '1'
               <h1>{post.data.title}</h1>
               <div class="meta">
                 <span>{dateStr}</span>
-                {post.data.tags?.map((tag: string) => (
-                  <a href={`/tags/${tag}`} class="tag">#{tag}</a>
-                ))}
+                {post.data.tags?.length ? (
+                  post.data.tags.map((tag: string) => (
+                    <a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
+                  ))
+                ) : null}
               </div>
             </header>
 

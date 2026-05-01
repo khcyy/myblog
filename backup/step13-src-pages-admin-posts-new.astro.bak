@@ -49,11 +49,6 @@ const errorMessage = errorKey ? errorMessages[errorKey] : '';
       <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;"></textarea>
     </label>
 
-    <label style="display: grid; gap: 0.35rem;">
-      <span>标签（英文逗号分隔）</span>
-      <input name="tags" placeholder="astro, cloudflare, d1" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
-    </label>
-
     <label style="display: inline-flex; align-items: center; gap: 0.4rem;">
       <span>状态</span>
       <select name="status" style="padding: 0.35rem; border: 1px solid #d1d5db; border-radius: 0.4rem;">
