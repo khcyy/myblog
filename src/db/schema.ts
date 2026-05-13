@@ -89,6 +89,10 @@ export const siteSettings = sqliteTable('site_settings', {
   siteName: text('site_name').notNull().default('My Blog'),
   siteDescription: text('site_description').notNull().default(''),
   homepageIntro: text('homepage_intro').notNull().default(''),
+  headerLogoUrl: text('header_logo_url').notNull().default(''),
+  heroLeftDecorUrl: text('hero_left_decor_url').notNull().default(''),
+  heroAvatarUrl: text('hero_avatar_url').notNull().default(''),
+  heroRightDecorUrl: text('hero_right_decor_url').notNull().default(''),
   updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 

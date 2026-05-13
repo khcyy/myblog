@@ -10,10 +10,19 @@ const settings = repo ? await repo.getSingleton() : null;
 const fallbackSettings = {
   siteName: 'My Blog',
   siteDescription: '',
-  homepageIntro: ''
+  homepageIntro: '',
+  headerLogoUrl: '',
+  heroLeftDecorUrl: '',
+  heroAvatarUrl: '',
+  heroRightDecorUrl: ''
 };
 
 const formValues = settings ?? fallbackSettings;
+
+const headerLogoPreview = formValues.headerLogoUrl || '/images/logo.png';
+const heroLeftDecorPreview = formValues.heroLeftDecorUrl || '/images/left-handwrite.png';
+const heroAvatarPreview = formValues.heroAvatarUrl || '/images/center-card.png';
+const heroRightDecorPreview = formValues.heroRightDecorUrl || '/images/flowers.png';
 ---
 
 <AdminLayout title="后台 - 设置" currentPath={Astro.url.pathname}>
@@ -60,6 +69,106 @@ const formValues = settings ?? fallbackSettings;
       >{formValues.homepageIntro}</textarea>
     </label>
 
+    <label data-asset-upload data-slot="headerLogo" data-input="headerLogoUrl" style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      顶部 logo 图片 URL
+      <input
+        type="text"
+        name="headerLogoUrl"
+        value={formValues.headerLogoUrl}
+        placeholder="https://..."
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem;"
+        data-input
+      />
+      <span style="font-size: 0.85rem; color: #6b7280;">
+        {formValues.headerLogoUrl ? '当前使用自定义图片' : '当前使用默认图片'}
+      </span>
+      <img src={headerLogoPreview} alt="顶部 logo 预览" style="width: 48px; height: 48px; object-fit: contain;" data-preview />
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        data-file
+      />
+      <button type="button" data-upload-button style="width: fit-content; border: 1px solid #d1d5db; background: white; padding: 0.4rem 0.7rem; border-radius: 0.45rem; cursor: pointer;">
+        上传图片
+      </button>
+      <p data-upload-status style="margin: 0; font-size: 0.85rem; color: #6b7280;"></p>
+    </label>
+
+    <label data-asset-upload data-slot="heroLeftDecor" data-input="heroLeftDecorUrl" style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      首页左侧装饰图 URL
+      <input
+        type="text"
+        name="heroLeftDecorUrl"
+        value={formValues.heroLeftDecorUrl}
+        placeholder="https://..."
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem;"
+        data-input
+      />
+      <span style="font-size: 0.85rem; color: #6b7280;">
+        {formValues.heroLeftDecorUrl ? '当前使用自定义图片' : '当前使用默认图片'}
+      </span>
+      <img src={heroLeftDecorPreview} alt="首页左侧装饰图预览" style="width: 120px; height: 120px; object-fit: contain;" data-preview />
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        data-file
+      />
+      <button type="button" data-upload-button style="width: fit-content; border: 1px solid #d1d5db; background: white; padding: 0.4rem 0.7rem; border-radius: 0.45rem; cursor: pointer;">
+        上传图片
+      </button>
+      <p data-upload-status style="margin: 0; font-size: 0.85rem; color: #6b7280;"></p>
+    </label>
+
+    <label data-asset-upload data-slot="heroAvatar" data-input="heroAvatarUrl" style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      首页头像图片 URL
+      <input
+        type="text"
+        name="heroAvatarUrl"
+        value={formValues.heroAvatarUrl}
+        placeholder="https://..."
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem;"
+        data-input
+      />
+      <span style="font-size: 0.85rem; color: #6b7280;">
+        {formValues.heroAvatarUrl ? '当前使用自定义图片' : '当前使用默认图片'}
+      </span>
+      <img src={heroAvatarPreview} alt="首页头像预览" style="width: 120px; height: 120px; object-fit: contain;" data-preview />
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        data-file
+      />
+      <button type="button" data-upload-button style="width: fit-content; border: 1px solid #d1d5db; background: white; padding: 0.4rem 0.7rem; border-radius: 0.45rem; cursor: pointer;">
+        上传图片
+      </button>
+      <p data-upload-status style="margin: 0; font-size: 0.85rem; color: #6b7280;"></p>
+    </label>
+
+    <label data-asset-upload data-slot="heroRightDecor" data-input="heroRightDecorUrl" style="display: grid; gap: 0.35rem; font-weight: 600; color: #111827;">
+      首页右侧装饰图 URL
+      <input
+        type="text"
+        name="heroRightDecorUrl"
+        value={formValues.heroRightDecorUrl}
+        placeholder="https://..."
+        style="border: 1px solid #d1d5db; border-radius: 0.45rem; padding: 0.5rem 0.6rem; font-size: 0.95rem;"
+        data-input
+      />
+      <span style="font-size: 0.85rem; color: #6b7280;">
+        {formValues.heroRightDecorUrl ? '当前使用自定义图片' : '当前使用默认图片'}
+      </span>
+      <img src={heroRightDecorPreview} alt="首页右侧装饰图预览" style="width: 120px; height: 120px; object-fit: contain;" data-preview />
+      <input
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+        data-file
+      />
+      <button type="button" data-upload-button style="width: fit-content; border: 1px solid #d1d5db; background: white; padding: 0.4rem 0.7rem; border-radius: 0.45rem; cursor: pointer;">
+        上传图片
+      </button>
+      <p data-upload-status style="margin: 0; font-size: 0.85rem; color: #6b7280;"></p>
+    </label>
+
     <div style="display: flex; gap: 0.5rem; align-items: center;">
       <button
         type="submit"
@@ -69,4 +178,72 @@ const formValues = settings ?? fallbackSettings;
       </button>
     </div>
   </form>
+  <script>
+    const uploadBlocks = document.querySelectorAll('[data-asset-upload]');
+
+    uploadBlocks.forEach((block) => {
+      const button = block.querySelector('[data-upload-button]');
+      const fileInput = block.querySelector('[data-file]');
+      const urlInput = block.querySelector('[data-input]');
+      const preview = block.querySelector('[data-preview]');
+      const status = block.querySelector('[data-upload-status]');
+      const slot = block.getAttribute('data-slot') || 'general';
+
+      if (!button || !fileInput || !urlInput || !status) {
+        return;
+      }
+
+      button.addEventListener('click', async () => {
+        const file = fileInput.files?.[0];
+        if (!file) {
+          status.textContent = '请先选择图片文件。';
+          status.style.color = '#b91c1c';
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = '上传中...';
+        status.textContent = '';
+        status.style.color = '#6b7280';
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('slot', slot);
+
+          const response = await fetch('/api/admin/assets/upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          let result = null;
+          try {
+            result = await response.json();
+          } catch {
+            result = null;
+          }
+
+          if (!response.ok || !result?.ok) {
+            const message = result?.error || '上传失败，请检查登录状态或文件格式。';
+            status.textContent = message;
+            status.style.color = '#b91c1c';
+            return;
+          }
+
+          urlInput.value = result.url;
+          if (preview) {
+            preview.src = result.url;
+          }
+          status.textContent = '图片上传成功，请点击保存设置使其生效。';
+          status.style.color = '#047857';
+        } catch {
+          status.textContent = '上传失败，请稍后重试。';
+          status.style.color = '#b91c1c';
+        } finally {
+          button.disabled = false;
+          button.textContent = '上传图片';
+        }
+      });
+    });
+  </script>
 </AdminLayout>

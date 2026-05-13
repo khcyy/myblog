@@ -22,6 +22,10 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   const siteName = normalizeText(formData.get('siteName'));
   const siteDescription = normalizeText(formData.get('siteDescription'));
   const homepageIntro = normalizeText(formData.get('homepageIntro'));
+  const headerLogoUrl = normalizeText(formData.get('headerLogoUrl'));
+  const heroLeftDecorUrl = normalizeText(formData.get('heroLeftDecorUrl'));
+  const heroAvatarUrl = normalizeText(formData.get('heroAvatarUrl'));
+  const heroRightDecorUrl = normalizeText(formData.get('heroRightDecorUrl'));
 
   if (!siteName) {
     return new Response('siteName is required', { status: 400 });
@@ -34,13 +38,21 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
     await repo.create({
       siteName,
       siteDescription,
-      homepageIntro
+      homepageIntro,
+      headerLogoUrl,
+      heroLeftDecorUrl,
+      heroAvatarUrl,
+      heroRightDecorUrl
     });
   } else {
     await repo.updateSingleton({
       siteName,
       siteDescription,
-      homepageIntro
+      homepageIntro,
+      headerLogoUrl,
+      heroLeftDecorUrl,
+      heroAvatarUrl,
+      heroRightDecorUrl
     });
   }
 

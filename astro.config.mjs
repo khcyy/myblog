@@ -19,6 +19,9 @@ export default defineConfig({
   adapter: cloudflare({
     platformProxy: {
       enabled: true // 允许在本地开发环境访问绑定的 D1
+    },
+    routes: {
+      exclude: ['/_astro/*', '/images/*', '/favicon.ico', '/favicon.svg', '/robots.txt']
     }
   })
 });
