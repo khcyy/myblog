@@ -2,6 +2,7 @@ import type { AstroCookies } from 'astro';
 
 export const SESSION_COOKIE_NAME = 'admin_session';
 export const OAUTH_STATE_COOKIE_NAME = 'github_oauth_state';
+export const OAUTH_REDIRECT_COOKIE_NAME = 'github_oauth_next';
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const OAUTH_STATE_MAX_AGE_SECONDS = 60 * 10;
@@ -127,10 +128,28 @@ export function setOAuthStateCookie(cookies: AstroCookies, requestUrl: string, s
   });
 }
 
+export function setOAuthRedirectCookie(cookies: AstroCookies, requestUrl: string, next: string) {
+  cookies.set(OAUTH_REDIRECT_COOKIE_NAME, next, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: isHttps(requestUrl),
+    maxAge: OAUTH_STATE_MAX_AGE_SECONDS
+  });
+}
+
 export function readOAuthStateCookie(cookies: AstroCookies) {
   return cookies.get(OAUTH_STATE_COOKIE_NAME)?.value ?? null;
 }
 
+export function readOAuthRedirectCookie(cookies: AstroCookies) {
+  return cookies.get(OAUTH_REDIRECT_COOKIE_NAME)?.value ?? null;
+}
+
 export function clearOAuthStateCookie(cookies: AstroCookies) {
   cookies.delete(OAUTH_STATE_COOKIE_NAME, { path: '/' });
+}
+
+export function clearOAuthRedirectCookie(cookies: AstroCookies) {
+  cookies.delete(OAUTH_REDIRECT_COOKIE_NAME, { path: '/' });
 }

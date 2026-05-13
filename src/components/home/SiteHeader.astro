@@ -2,10 +2,14 @@
 import { siteConfig } from '../../data/siteData';
 
 const {
-  headerLogoUrl = ''
+  headerLogoUrl = '',
+  isAdmin = false,
+  githubLoginHref = '/api/auth/github/login?next=/admin'
 } = Astro.props;
 
 const headerLogoSrc = headerLogoUrl || '/images/logo.png';
+const githubLinkHref = isAdmin ? '/admin' : githubLoginHref;
+const githubLinkLabel = isAdmin ? '后台' : '登录';
 ---
 
 <header class="topbar">
@@ -30,7 +34,7 @@ const headerLogoSrc = headerLogoUrl || '/images/logo.png';
           </svg>
         </a>
       </nav>
-      <a class="nav-link-out" href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="nav-link-out" href={githubLinkHref}>{githubLinkLabel}</a>
       <button class="theme-btn" id="themeToggle" aria-label="切换日夜模式">
         <span class="crescent"></span>
       </button>

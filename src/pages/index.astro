@@ -42,6 +42,8 @@ const defaultSettings = {
 
 const settings = settingsRepo ? await settingsRepo.getSingleton() : null;
 const siteSettings = settings ?? defaultSettings;
+const currentUser = (Astro.locals as any).currentUser;
+const isAdmin = currentUser?.role === 'admin';
 
 const normalizeAssetUrl = (value: unknown) => {
   if (typeof value !== 'string') {
@@ -92,7 +94,7 @@ const projects: ProjectPreview[] = projectRepo
 <Layout title={`${siteSettings.siteName} · mockup v5`}>
 
   <div class="shell">
-    <SiteHeader headerLogoUrl={headerLogoUrl} />
+    <SiteHeader headerLogoUrl={headerLogoUrl} isAdmin={isAdmin} />
     <HomeSection
       siteName={siteSettings.siteName}
       siteDescription={siteSettings.siteDescription}

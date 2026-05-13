@@ -7,7 +7,9 @@ import {
 import {
   clearOAuthStateCookie,
   createSessionCookie,
-  readOAuthStateCookie
+  readOAuthRedirectCookie,
+  readOAuthStateCookie,
+  clearOAuthRedirectCookie
 } from '../../../../lib/auth/session';
 import { upsertGithubUser } from '../../../../lib/auth/user';
 
@@ -28,6 +30,14 @@ function errorMessage(error: unknown) {
     return error.message;
   }
   return String(error);
+}
+
+function normalizeRedirectPath(value: string | null) {
+  const trimmed = (value ?? '').trim();
+  if (!trimmed || !trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.includes('\\')) {
+    return '';
+  }
+  return trimmed;
 }
 
 export const GET: APIRoute = async ({ request, locals, cookies, redirect }) => {
@@ -78,8 +88,11 @@ export const GET: APIRoute = async ({ request, locals, cookies, redirect }) => {
       id: user.id,
       role: user.role
     });
+    const next = normalizeRedirectPath(readOAuthRedirectCookie(cookies));
+    clearOAuthRedirectCookie(cookies);
 
-    return redirect('/admin', 302);
+    const redirectTarget = user.role === 'admin' ? (next || '/admin') : '/';
+    return redirect(redirectTarget, 302);
   } catch (error) {
     const message = errorMessage(error);
     console.error('[auth][callback] failed', {
