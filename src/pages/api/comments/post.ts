@@ -29,6 +29,24 @@ function getSafeRedirect(redirectTo: string, referer: string | null) {
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
+    const currentUser = (locals as any).currentUser;
+    if (!currentUser) {
+      const accept = request.headers.get('accept') ?? '';
+      const contentType = request.headers.get('content-type') ?? '';
+      const expectsJson = accept.includes('application/json') || contentType.includes('application/json');
+
+      if (expectsJson) {
+        return new Response(JSON.stringify({ ok: false, error: '请先登录 GitHub 再评论' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+
+      const loginUrl = new URL('/api/auth/github/login', request.url);
+      loginUrl.searchParams.set('next', '/');
+      return new Response(null, { status: 303, headers: { Location: loginUrl.toString() } });
+    }
+
     const contentType = request.headers.get('content-type') ?? '';
     let body: Record<string, unknown> = {};
 
