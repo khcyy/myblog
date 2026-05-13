@@ -3,13 +3,13 @@ import { siteConfig } from '../../data/siteData';
 
 const {
   headerLogoUrl = '',
-  isAdmin = false,
-  githubLoginHref = '/api/auth/github/login?next=/admin'
+  user = null
 } = Astro.props;
 
 const headerLogoSrc = headerLogoUrl || '/images/logo.png';
-const githubLinkHref = isAdmin ? '/admin' : githubLoginHref;
-const githubLinkLabel = isAdmin ? '后台' : '登录';
+const loginHref = '/api/auth/github/login?next=/';
+const avatarSrc = user?.avatarUrl || headerLogoSrc;
+const isAdmin = user?.role === 'admin';
 ---
 
 <header class="topbar">
@@ -34,7 +34,25 @@ const githubLinkLabel = isAdmin ? '后台' : '登录';
           </svg>
         </a>
       </nav>
-      <a class="nav-link-out" href={githubLinkHref}>{githubLinkLabel}</a>
+      {user ? (
+        <details class="user-menu">
+          <summary class="user-menu-trigger" aria-label="用户菜单">
+            <img src={avatarSrc} alt="用户头像" />
+          </summary>
+          <div class="user-menu-panel">
+            <div class="user-menu-meta">
+              <div class="user-menu-name">{user.username}</div>
+              <div class="user-menu-id">{user.githubId}</div>
+            </div>
+            {isAdmin ? (
+              <a class="user-menu-link" href="/admin">后台</a>
+            ) : null}
+            <a class="user-menu-link" href="/api/auth/logout">退出登录</a>
+          </div>
+        </details>
+      ) : (
+        <a class="nav-link-out" href={loginHref}>登录</a>
+      )}
       <button class="theme-btn" id="themeToggle" aria-label="切换日夜模式">
         <span class="crescent"></span>
       </button>

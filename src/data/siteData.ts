@@ -5,9 +5,9 @@ export const siteConfig = {
 };
 
 export const socialLinks = [
-  { name: "GitHub", href: "https://github.com", icon: "github" },
+  { name: "GitHub", href: "https://github.com/khcyy", icon: "github" },
   { name: "Bilibili", href: "https://www.bilibili.com", icon: "youtube" },
-  { name: "Email", href: "mailto:hello@example.com", icon: "email" },
+  { name: "Email", href: "mailto:2437517997@qq.com", icon: "email" },
   { name: "X", href: "https://x.com", icon: "x" },
   { name: "Instagram", href: "https://instagram.com", icon: "instagram" },
 ];
