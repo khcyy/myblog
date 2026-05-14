@@ -1,0 +1,84 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  summary: string;
+  date: string;
+  stack?: string[];
+  views?: number;
+}
+
+const { id, title, summary, date, stack = [], views = 0 } = Astro.props;
+
+function calcReadingTime(raw: string): number {
+  if (!raw) return 1;
+  const text = raw.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+  const chineseChars = (text.match(/[一-鿿㐀-䶿豈-﫿]/g) || []).length;
+  const rest = text.replace(/[一-鿿㐀-䶿豈-﫿]/g, ' ');
+  const englishWords = rest.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(chineseChars / 300 + englishWords / 200));
+}
+
+const readingTime = calcReadingTime(summary);
+const displayDate = date ? new Date(date).toISOString().slice(0, 10) : '';
+const normalizedTags = stack
+  .map((tag) => String(tag ?? '').trim())
+  .filter(Boolean)
+  .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`));
+
+const cardClasses = ['item', 'card-hoverable'].join(' ');
+---
+
+<article class={cardClasses}>
+  <a href={`/projects/${id}`} class="card-link-overlay" aria-label={title}></a>
+
+  <div>
+    <h3>{title}</h3>
+    <p>{summary}</p>
+
+    <div class="card-meta-icons">
+      <span class="card-meta-item">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        {displayDate || '--'}
+      </span>
+
+      {normalizedTags.length > 0 ? (
+        <span class="card-meta-item">
+          <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <span class="card-meta-tags">
+            {normalizedTags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </span>
+        </span>
+      ) : null}
+
+      <span class="card-meta-item">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        {readingTime} 分钟
+      </span>
+
+      <span class="card-meta-item">
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        {views} 次浏览
+      </span>
+    </div>
+  </div>
+
+  <div class="card-arrow">
+    <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
+</article>
+
+<style>
+.card-link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.card-link-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+</style>

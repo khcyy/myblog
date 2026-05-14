@@ -26,10 +26,15 @@ export const POST: APIRoute = async ({ params, locals, redirect }) => {
   }
 
   const nextStatus = existing.status === 'published' ? 'draft' : 'published';
-  await repo.update(postId, {
-    status: nextStatus,
-    publishedAt: nextStatus === 'published' ? existing.publishedAt ?? new Date().toISOString() : null
-  });
+  try {
+    await repo.update(postId, {
+      status: nextStatus,
+      publishedAt: nextStatus === 'published' ? existing.publishedAt ?? new Date().toISOString() : null
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '未知错误';
+    return new Response(`更新文章状态失败: ${message}`, { status: 500 });
+  }
 
   const success = nextStatus === 'published' ? 'published' : 'drafted';
   return redirect(`/admin/posts?success=${success}`, 302);

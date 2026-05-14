@@ -1,11 +1,14 @@
 ---
+import ProjectCard from '../projects/ProjectCard.astro';
+
 interface Props {
   projects: {
     id: string;
     title: string;
     summary: string;
     date: string;
-    stack: string[];
+    stack?: string[];
+    views?: number;
   }[];
 }
 
@@ -21,16 +24,14 @@ const { projects } = Astro.props;
   </div>
   <div class="list">
     {projects.map((project) => (
-      <article class="item">
-        <div>
-          <h3><a href={`/projects/${project.id}`}>{project.title}</a></h3>
-          <p>{project.summary}</p>
-          <div class="meta">
-            <span>{project.date}</span>
-            {project.stack.map((item: string) => <span class="tag">{item}</span>)}
-          </div>
-        </div>
-      </article>
+      <ProjectCard
+        id={project.id}
+        title={project.title}
+        summary={project.summary}
+        date={project.date}
+        stack={project.stack ?? []}
+        views={project.views ?? 0}
+      />
     ))}
   </div>
 </section>

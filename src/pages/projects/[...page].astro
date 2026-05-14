@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import ProjectCard from '../../components/projects/ProjectCard.astro';
 import { createProjectsRepository, getDbClientFromLocals } from '../../db';
 
 export const prerender = false;
@@ -58,20 +59,14 @@ const page = {
 
     <div class="list" style="display: flex; flex-direction: column; gap: 16px;">
       {page.data.map((project: any) => (
-        <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line);">
-          <div>
-            <h3 style="margin: 0 0 10px; font-size: 20px;">
-              <a href={`/projects/${project.id}`}>{project.title}</a>
-            </h3>
-            <p style="margin: 0 0 12px; color: var(--sub); line-height: 1.6;">{project.summary}</p>
-            <div class="meta">
-              <span>{project.date}</span>
-              {project.stack?.map((item: string) => (
-                <span class="tag">{item}</span>
-              ))}
-            </div>
-          </div>
-        </article>
+        <ProjectCard
+          id={project.id}
+          title={project.title}
+          summary={project.summary}
+          date={project.date}
+          stack={project.stack ?? []}
+          views={project.views ?? 0}
+        />
       ))}
     </div>
 
