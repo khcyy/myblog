@@ -15,6 +15,9 @@ type BlogPreview = {
   description: string;
   date: string;
   tags: string[];
+  views: number;
+  pinned: boolean;
+  content: string;
 };
 
 type ProjectPreview = {
@@ -72,6 +75,9 @@ const posts: BlogPreview[] = postRepo
         description: post.summary ?? '',
         date: dateSource ? new Date(dateSource).toISOString().slice(0, 10) : '',
         tags: post.tags ?? [],
+        views: post.views ?? 0,
+        pinned: (post.pinned ?? 0) === 1,
+        content: post.content ?? '',
       };
     })
   : [];

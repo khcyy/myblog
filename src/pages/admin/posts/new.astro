@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import AdminLayout from '../../../layouts/AdminLayout.astro';
+import RichTextEditor from '../../../components/admin/RichTextEditor.astro';
 
 const errorKey = Astro.url.searchParams.get('error');
 const errorMessages: Record<string, string> = {
@@ -44,10 +45,12 @@ const errorMessage = errorKey ? errorMessages[errorKey] : '';
       <input name="coverImage" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;" />
     </label>
 
-    <label style="display: grid; gap: 0.35rem;">
-      <span>内容（Markdown）</span>
-      <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;"></textarea>
-    </label>
+    <RichTextEditor
+      label="内容（富文本）"
+      name="content"
+      required
+      help="支持直接粘贴图文，图片会自动上传到 R2。"
+    />
 
     <label style="display: grid; gap: 0.35rem;">
       <span>标签（英文逗号分隔）</span>

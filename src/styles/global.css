@@ -184,6 +184,134 @@ body.dark .floating-words span { color: rgba(255,255,255,.48); }
 .item h3 { margin: 0 0 10px; font-size: 20px; font-weight: bold; }
 .item p { margin: 0 0 10px; color: var(--sub); line-height: 1.85; font-size: 15px; }
 
+/* ── 卡片分层权重 ── */
+.item.card-pinned {
+  border-color: color-mix(in srgb, #8B5A2B 28%, var(--line));
+  background: color-mix(in srgb, #FFF5E6 50%, color-mix(in srgb, var(--paper) 98%, transparent));
+}
+.item.card-popular {
+  box-shadow: 0 12px 32px rgba(230, 126, 34, .10);
+}
+
+/* ── 卡片悬停 ── */
+.item.card-hoverable {
+  position: relative;
+  transition: transform .22s ease, background .22s ease, box-shadow .22s ease;
+  cursor: pointer;
+}
+.item.card-hoverable:hover {
+  transform: translateY(-4px);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  box-shadow: 0 14px 36px rgba(37, 48, 39, .08);
+}
+.card-arrow {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, #8B5A2B 12%, transparent);
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.item.card-hoverable:hover .card-arrow {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+.card-arrow svg {
+  width: 16px;
+  height: 16px;
+  stroke: #8B5A2B;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── 置顶 / 热门标签 ── */
+.card-badges {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 2;
+}
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  backdrop-filter: blur(6px);
+}
+.card-badge-pinned {
+  background: #FFF5E6;
+  color: #8B5A2B;
+  border: 1px solid rgba(139, 90, 43, .18);
+}
+.card-badge-popular {
+  background: #FFF7F0;
+  color: #E67E22;
+  border: 1px solid rgba(230, 126, 34, .18);
+}
+.card-badge svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.card-badge-popular svg {
+  fill: #E67E22;
+  stroke: none;
+}
+
+/* ── 图标化元信息行 ── */
+.card-meta-icons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--soft);
+}
+.card-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.card-meta-item svg {
+  width: 14px;
+  height: 14px;
+  stroke: #8B5A2B;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: .72;
+  flex-shrink: 0;
+}
+.card-meta-tags {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 /* 元数据与标签 */
 .meta { font-size: 13px; color: var(--soft); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .tag { background: var(--line); padding: 2px 8px; border-radius: 4px; color: var(--text); }
@@ -224,8 +352,14 @@ body.dark .floating-words span { color: rgba(255,255,255,.48); }
 .profile-links-new { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
 .profile-links-new a { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--paper) 92%, transparent); border: 1px solid var(--line); color: var(--text); transition: .2s ease; }
 .profile-links-new a:hover { transform: translateY(-2px); background: color-mix(in srgb, var(--paper) 100%, transparent); }
+.profile-links-new .email-copy-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: color-mix(in srgb, var(--paper) 92%, transparent); border: 1px solid var(--line); color: var(--text); transition: .2s ease; cursor: pointer; }
+.profile-links-new .email-copy-btn:hover { transform: translateY(-2px); background: color-mix(in srgb, var(--paper) 100%, transparent); }
 .profile-links-new svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .profile-links-new .fill svg { fill: currentColor; stroke: none; }
+.profile-links-new .email-copy-btn svg { stroke: currentColor; fill: none; }
+
+.email-toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: var(--paper); padding: 12px 28px; border-radius: 24px; font-size: 14px; z-index: 9999; opacity: 0; transition: opacity .35s ease, transform .35s ease; pointer-events: none; white-space: nowrap; }
+.email-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* 详情页布局与文章区域 (Prose) */
 .page-shell { margin-top: 24px; max-width: 1000px; }
@@ -242,7 +376,9 @@ body.dark .floating-words span { color: rgba(255,255,255,.48); }
 .prose ul, .prose ol { padding-left: 20px; color: var(--sub); }
 .prose li { margin-bottom: 8px; color: var(--text); }
 .prose a { color: var(--brand); text-decoration: underline; text-underline-offset: 4px; }
-.prose img { max-width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow); margin: 20px 0; }
+.prose img { max-width: 100%; height: auto; display: block; border-radius: var(--radius-md); box-shadow: var(--shadow); margin: 20px auto; }
+.prose .rte-image { max-width: 100%; margin: 24px auto; }
+.prose .rte-image img { width: 100%; height: auto; display: block; margin: 0; }
 .prose blockquote { border-left: 4px solid var(--line); padding-left: 20px; color: var(--sub); margin-left: 0; }
 
 /* Footer */

@@ -1,5 +1,6 @@
 ---
 import { createPostsRepository, getDbClientFromLocals } from '../../db';
+import PostCard from '../../components/blog/PostCard.astro';
 import Layout from '../../layouts/Layout.astro';
 
 export const prerender = false;
@@ -24,7 +25,10 @@ const data = rows.map((post) => ({
     title: post.title,
     description: post.summary ?? '',
     date: post.publishedAt ?? '',
-    tags: post.tags ?? []
+    tags: post.tags ?? [],
+    views: post.views ?? 0,
+    pinned: (post.pinned ?? 0) === 1,
+    content: post.content ?? ''
   }
 }));
 
@@ -53,20 +57,16 @@ const page = {
 
     <div class="list" style="display: flex; flex-direction: column; gap: 16px;">
       {page.data.map((post: any) => (
-        <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line);">
-          <div>
-            <h3 style="margin: 0 0 10px; font-size: 20px;">
-              <a href={`/blog/${post.id}`}>{post.data.title}</a>
-            </h3>
-            <p style="margin: 0 0 12px; color: var(--sub); line-height: 1.6;">{post.data.description}</p>
-            <div class="meta">
-              <span>{post.data.date ? new Date(post.data.date).toISOString().slice(0, 10) : ''}</span>
-              {post.data.tags?.map((t: string) => (
-                <a href={`/blog/tag/${t}`} class="tag">#{t}</a>
-              ))}
-            </div>
-          </div>
-        </article>
+        <PostCard
+          id={post.id}
+          title={post.data.title}
+          description={post.data.description}
+          date={post.data.date}
+          tags={post.data.tags}
+          views={post.data.views ?? 0}
+          pinned={post.data.pinned ?? false}
+          content={post.data.content ?? ''}
+        />
       ))}
     </div>
 

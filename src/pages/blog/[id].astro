@@ -1,6 +1,7 @@
 ---
 import { createCommentsRepository, createPostsRepository, getDbClientFromLocals } from '../../db';
 import Layout from '../../layouts/Layout.astro';
+import { renderRichContent } from '../../lib/render-content';
 
 export const prerender = false;
 
@@ -29,6 +30,8 @@ const post = row
 const comments = post && commentsRepo
   ? await commentsRepo.listApprovedByPostSlug(post.slug)
   : [];
+
+const contentHtml = post ? renderRichContent(post.data.content ?? '') : '';
 
 const headings: Array<{ slug: string; text: string; depth: number }> = [];
 
@@ -72,9 +75,7 @@ const isLoggedIn = Boolean(currentUser);
               </div>
             </header>
 
-            <article class="prose" style="white-space: pre-wrap;">
-              {post.data.content}
-            </article>
+            <article class="prose" set:html={contentHtml}></article>
 
             <!-- 本地全栈评论区 -->
             <section class="comments-section" style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--line);">

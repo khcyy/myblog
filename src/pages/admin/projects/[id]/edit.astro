@@ -2,6 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { createProjectsRepository, getDbClientFromLocals } from '../../../../db';
+import RichTextEditor from '../../../../components/admin/RichTextEditor.astro';
 
 const db = getDbClientFromLocals(Astro.locals as any);
 const projectId = Number(Astro.params.id);
@@ -58,10 +59,13 @@ const errorMessage = errorKey ? errorMessages[errorKey] : '';
       <textarea name="summary" rows="3" style="padding: 0.45rem; border: 1px solid #d1d5db; border-radius: 0.4rem;">{project.summary ?? ''}</textarea>
     </label>
 
-    <label style="display: grid; gap: 0.35rem;">
-      <span>内容（Markdown）</span>
-      <textarea name="content" rows="16" required style="padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 0.4rem; font-family: Consolas, 'Courier New', monospace;">{project.content}</textarea>
-    </label>
+    <RichTextEditor
+      label="内容（富文本）"
+      name="content"
+      required
+      initialValue={project.content}
+      help="支持直接粘贴图文，图片会自动上传到 R2。"
+    />
 
     <label style="display: inline-flex; align-items: center; gap: 0.4rem;">
       <span>状态</span>

@@ -29,6 +29,8 @@ export const posts = sqliteTable(
     status: text('status').notNull().default('draft'),
     tags: text('tags'),
     coverImage: text('cover_image'),
+    views: integer('views').notNull().default(0),
+    pinned: integer('pinned').notNull().default(0),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     publishedAt: text('published_at')

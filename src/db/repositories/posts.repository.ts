@@ -51,7 +51,7 @@ export function createPostsRepository(db: DbClient) {
         .select()
         .from(posts)
         .where(eq(posts.status, 'published'))
-        .orderBy(desc(posts.publishedAt), desc(posts.updatedAt))
+        .orderBy(desc(posts.pinned), desc(posts.publishedAt), desc(posts.updatedAt))
         .limit(limit);
       return rows.map(mapPost);
     },
@@ -60,7 +60,7 @@ export function createPostsRepository(db: DbClient) {
         .select()
         .from(posts)
         .where(eq(posts.status, 'published'))
-        .orderBy(desc(posts.publishedAt))
+        .orderBy(desc(posts.pinned), desc(posts.publishedAt))
         .limit(limit);
       return rows.map(mapPost);
     },
@@ -73,7 +73,7 @@ export function createPostsRepository(db: DbClient) {
         .select()
         .from(posts)
         .where(eq(posts.status, 'published'))
-        .orderBy(desc(posts.publishedAt), desc(posts.updatedAt))
+        .orderBy(desc(posts.pinned), desc(posts.publishedAt), desc(posts.updatedAt))
         .limit(safePageSize)
         .offset(offset);
       return rows.map(mapPost);
@@ -99,7 +99,7 @@ export function createPostsRepository(db: DbClient) {
         .select()
         .from(posts)
         .where(and(eq(posts.status, 'published'), tagCondition(normalized)))
-        .orderBy(desc(posts.publishedAt), desc(posts.updatedAt))
+        .orderBy(desc(posts.pinned), desc(posts.publishedAt), desc(posts.updatedAt))
         .limit(safePageSize)
         .offset(offset);
 
