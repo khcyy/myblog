@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import { createCommentsRepository, createProjectsRepository, getDbClientFromLocals } from '../../db';
 import { renderRichContent } from '../../lib/render-content';
+import { formatDateLongZh, formatDateTimeZh } from '../../lib/date';
 
 export const prerender = false;
 
@@ -26,13 +27,7 @@ const comments = commentsRepo
 
 const summary = project.summary ?? '';
 const dateSource = project.publishedAt ?? project.updatedAt ?? project.createdAt;
-const dateStr = dateSource
-  ? new Date(dateSource).toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  : '';
+const dateStr = formatDateLongZh(dateSource);
 
 const commentNotice = Astro.url.searchParams.get('commented') === '1'
   ? '评论已提交，等待审核。'
@@ -76,7 +71,7 @@ const isLoggedIn = Boolean(currentUser);
               <div style="padding: 1.2rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--paper) 40%, transparent);">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; align-items: center;">
                   <strong style="font-size: 1.05rem;">{comment.author ?? comment.nickname ?? '匿名'}</strong>
-                  <span style="font-size: 0.8rem; color: var(--sub);">{new Date(comment.createdAt).toLocaleString()}</span>
+                  <span style="font-size: 0.8rem; color: var(--sub);">{formatDateTimeZh(comment.createdAt)}</span>
                 </div>
                 <p style="margin: 0; line-height: 1.6; white-space: pre-wrap; font-size: 0.95rem;">{comment.content}</p>
               </div>

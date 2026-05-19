@@ -1,25 +1,45 @@
-import { getCollection } from 'astro:content';
+import type { APIRoute } from 'astro';
+import { createPostsRepository, createProjectsRepository, getDbClientFromLocals } from '../db';
 
-export async function GET() {
-  const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
-  const blog = await getCollectionAny('blog');
-  const projects = await getCollectionAny('projects');
+export const prerender = false;
 
-  const blogPosts = blog.filter(p => p.data.date).map(p => ({
-    id: p.id,
-    title: p.data.title,
-    description: p.data.description || '',
-    content: p.body || '',
-    url: `/blog/${p.id.replace(/\.mdx?$/, '')}/`,
+const SEARCH_LIMIT = 20;
+
+export const GET: APIRoute = async ({ locals }) => {
+  const db = getDbClientFromLocals(locals as any);
+  if (!db) {
+    return new Response(JSON.stringify([]), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store'
+      }
+    });
+  }
+
+  const postRepo = createPostsRepository(db);
+  const projectRepo = createProjectsRepository(db);
+
+  const [posts, projects] = await Promise.all([
+    postRepo.listPublished(SEARCH_LIMIT),
+    projectRepo.listPublished(SEARCH_LIMIT)
+  ]);
+
+  const blogPosts = posts.map((post) => ({
+    id: post.slug,
+    title: post.title,
+    description: post.summary ?? '',
+    content: post.content ?? '',
+    url: `/blog/${post.slug}/`,
     type: 'blog'
   }));
 
-  const projectPosts = projects.filter(p => p.data.date).map(p => ({
-    id: p.id,
-    title: p.data.title,
-    description: p.data.summary || '',
-    url: `/projects/${p.id.replace(/\.mdx?$/, '')}/`,
-    content: p.body || '',
+  const projectPosts = projects.map((project) => ({
+    id: project.slug,
+    title: project.title,
+    description: project.summary ?? '',
+    content: project.content ?? '',
+    url: `/projects/${project.slug}/`,
     type: 'project'
   }));
 
@@ -27,7 +47,8 @@ export async function GET() {
 
   return new Response(JSON.stringify(allPosts), {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store'
     }
   });
-}
+};

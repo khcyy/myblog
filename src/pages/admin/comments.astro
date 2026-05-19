@@ -2,6 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { createCommentsRepository, getDbClientFromLocals } from '../../db';
+import { formatDateTimeZh } from '../../lib/date';
 
 const db = getDbClientFromLocals(Astro.locals as any);
 const comments = db ? await createCommentsRepository(db).listAll() : [];
@@ -49,7 +50,7 @@ const comments = db ? await createCommentsRepository(db).listAll() : [];
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.email || '-'}</td>
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb; white-space: pre-wrap; word-break: break-word;">{comment.content}</td>
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.status}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{comment.createdAt}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{formatDateTimeZh(comment.createdAt) || '-'}</td>
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
                   <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
                     <form method="post" action={`/api/admin/comments/${comment.id}/approve`} style="margin: 0;">

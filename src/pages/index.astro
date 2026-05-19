@@ -73,7 +73,7 @@ const posts: BlogPreview[] = postRepo
         id: post.slug,
         title: post.title,
         description: post.summary ?? '',
-        date: dateSource ? new Date(dateSource).toISOString().slice(0, 10) : '',
+        date: dateSource ?? '',
         tags: post.tags ?? [],
         views: post.views ?? 0,
         pinned: (post.pinned ?? 0) === 1,
@@ -89,7 +89,7 @@ const projects: ProjectPreview[] = projectRepo
         id: project.slug,
         title: project.title,
         summary: project.summary ?? '',
-        date: dateSource ? new Date(dateSource).toISOString().slice(0, 10) : '',
+        date: dateSource ?? '',
         stack: []
       };
     })

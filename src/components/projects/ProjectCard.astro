@@ -1,4 +1,6 @@
 ---
+import { formatDateYmd } from '../../lib/date';
+
 interface Props {
   id: string;
   title: string;
@@ -20,7 +22,7 @@ function calcReadingTime(raw: string): number {
 }
 
 const readingTime = calcReadingTime(summary);
-const displayDate = date ? new Date(date).toISOString().slice(0, 10) : '';
+const displayDate = formatDateYmd(date);
 const normalizedTags = stack
   .map((tag) => String(tag ?? '').trim())
   .filter(Boolean)

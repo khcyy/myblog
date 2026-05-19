@@ -2,6 +2,7 @@
 export const prerender = false;
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { createPostsRepository, getDbClientFromLocals } from '../../db';
+import { formatDateTimeZh } from '../../lib/date';
 
 const db = getDbClientFromLocals(Astro.locals as any);
 const posts = db ? await createPostsRepository(db).listAll() : [];
@@ -59,7 +60,7 @@ const successMessage = successKey ? successMessages[successKey] : '';
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{post.title}</td>
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{post.slug}</td>
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{post.status}</td>
-                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{post.updatedAt}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{formatDateTimeZh(post.updatedAt) || '-'}</td>
                 <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
                   <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
                     <a href={`/admin/posts/${post.id}/edit`} style="text-decoration: none; border: 1px solid #cbd5e1; color: #1f2937; border-radius: 0.35rem; padding: 0.2rem 0.45rem;">编辑</a>

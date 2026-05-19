@@ -29,7 +29,7 @@ const data = rows.map((project) => {
     id: project.slug,
     title: project.title,
     summary: project.summary ?? '',
-    date: dateSource ? new Date(dateSource).toISOString().slice(0, 10) : '',
+    date: dateSource ?? '',
     stack: [] as string[]
   };
 });

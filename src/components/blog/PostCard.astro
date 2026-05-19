@@ -1,4 +1,6 @@
 ---
+import { formatDateYmd } from '../../lib/date';
+
 interface Props {
   id: string;
   title: string;
@@ -23,7 +25,7 @@ function calcReadingTime(raw: string): number {
 
 const readingTime = calcReadingTime(content);
 const isPopular = views >= 100;
-const displayDate = date ? new Date(date).toISOString().slice(0, 10) : '';
+const displayDate = formatDateYmd(date);
 
 const cardClasses = [
   'item',

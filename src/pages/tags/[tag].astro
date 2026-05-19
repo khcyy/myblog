@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import { formatDateYmd } from '../../lib/date';
 
 export async function getStaticPaths() {
   const getCollectionAny = getCollection as unknown as (name: string) => Promise<any[]>;
@@ -49,7 +50,7 @@ const { posts } = Astro.props;
             </h3>
             <p style="margin: 0 0 12px; color: var(--sub); line-height: 1.6;">{post.data.description}</p>
             <div class="meta">
-              <span>{new Date(post.data.date).toISOString().slice(0, 10)}</span>
+              <span>{formatDateYmd(post.data.date)}</span>
               {post.data.tags?.map((t: string) => (
                 <a href={`/tags/${t}`} class="tag" style={t === tag ? "background: var(--text); color: var(--bg);" : ""}>#{t}</a>
               ))}
