@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "npx wrangler d1 migrations apply blog_db --remote && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
