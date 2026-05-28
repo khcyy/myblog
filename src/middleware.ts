@@ -1,6 +1,9 @@
 import { defineMiddleware } from 'astro:middleware';
 import { clearSessionCookie, readSessionCookie } from './lib/auth/session';
 import { getUserById } from './lib/auth/user';
+import { runAutoMigrations } from './db/auto-migrate';
+
+let autoMigrated = false;
 
 function isAdminPath(pathname: string) {
   return pathname === '/admin' || pathname.startsWith('/admin/');
@@ -8,6 +11,15 @@ function isAdminPath(pathname: string) {
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const env = (context.locals as any).runtime?.env ?? (context.locals as any).env;
+
+  if (!autoMigrated && (env as any)?.DB) {
+    autoMigrated = true;
+    await runAutoMigrations((env as any).DB).catch((err: any) => {
+      console.warn('[auto-migrate] failed:', err);
+      autoMigrated = false;
+    });
+  }
+
   const session = await readSessionCookie(context.cookies, env);
 
   context.locals.session = session;
