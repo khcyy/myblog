@@ -1,9 +1,0 @@
----
-export const prerender = false;
-import AdminLayout from '../../layouts/AdminLayout.astro';
----
-
-<AdminLayout title="后台 - 项目" currentPath={Astro.url.pathname}>
-  <h2 style="margin: 0 0 0.75rem;">项目管理</h2>
-  <p style="margin: 0; color: #4b5563;">这里用于管理项目条目与展示信息。</p>
-</AdminLayout>

@@ -1,2 +1,0 @@
-## pre-restore-backup
-?? backup/step07-stable-status.txt

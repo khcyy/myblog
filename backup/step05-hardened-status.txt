@@ -1,2 +1,0 @@
-## pre-restore-backup
- M backup/step05-hardened-status.txt

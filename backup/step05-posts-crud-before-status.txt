@@ -1,4 +1,0 @@
-## pre-restore-backup
-?? backup/step04-stable-status.txt
-?? backup/step05-posts-crud-before-status.txt
-?? backup/step05-posts-crud-before.patch
