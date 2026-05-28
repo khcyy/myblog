@@ -23,7 +23,7 @@ export async function GET({ request, locals }) {
     
     // 执行查询语句，按时间最新倒序排列
     const { results } = await db.prepare(
-      "SELECT id, post_slug, author, email, content, created_at FROM comments WHERE post_slug = ? ORDER BY created_at DESC"
+      "SELECT id, post_slug, author, content, created_at FROM comments WHERE post_slug = ? ORDER BY created_at DESC"
     ).bind(slug).all();
 
     return new Response(JSON.stringify({ success: true, data: results }), {

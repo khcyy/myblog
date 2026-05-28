@@ -23,7 +23,8 @@ const post = row
         title: row.title,
         tags: row.tags ?? [],
         date: row.publishedAt ?? row.updatedAt ?? row.createdAt,
-        content: row.content ?? ''
+        content: row.content ?? '',
+        views: row.views ?? 0
       }
     }
   : null;
@@ -44,6 +45,7 @@ const commentNotice = Astro.url.searchParams.get('commented') === '1'
 
 const currentUser = (Astro.locals as any).currentUser;
 const isLoggedIn = Boolean(currentUser);
+const postSlug = post?.slug ?? '';
 ---
 
 <Layout title={post ? `${post.data.title} - Blog` : '文章不存在 - Blog'}>
@@ -55,13 +57,14 @@ const isLoggedIn = Boolean(currentUser);
     </div>
     
     <div class="article-layout">
-      <main class="panel article-panel">
+      <main class="panel article-panel" data-post-slug={postSlug}>
         {post ? (
           <>
             <header class="article-header">
               <h1>{post.data.title}</h1>
               <div class="meta">
                 <span>{dateStr}</span>
+                <span><span id="viewCount">{post.data.views ?? 0}</span> 次浏览</span>
                 {post.data.tags?.length ? (
                   post.data.tags.map((tag: string) => (
                     <a href={`/blog/tag/${tag}`} class="tag">#{tag}</a>
@@ -98,10 +101,7 @@ const isLoggedIn = Boolean(currentUser);
                 <form method="post" action="/api/comments/post" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
                   <input type="hidden" name="postSlug" value={post.slug} />
                   <input type="hidden" name="redirectTo" value={Astro.url.pathname} />
-                  <div style="display: flex; gap: 1rem;">
-                    <input type="text" name="author" placeholder="昵称 (必填)" required style="flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit;" />
-                    <input type="email" name="email" placeholder="邮箱 (选填)" style="flex: 1; padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit;" />
-                  </div>
+                  <div style="font-size: 0.85rem; color: var(--sub);">已登录：{currentUser.username}（评论将显示为该账号）</div>
                   <textarea name="content" placeholder="分享你的看法..." required rows="4" style="padding: 0.8rem; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--text); outline: none; font-family: inherit; resize: vertical;"></textarea>
                   <div>
                     <button type="submit" style="padding: 0.6rem 1.5rem; border: none; border-radius: 8px; background: var(--text); color: var(--bg); font-weight: bold; cursor: pointer; transition: opacity 0.2s;">
@@ -142,5 +142,32 @@ const isLoggedIn = Boolean(currentUser);
     </div>
   </div>
 </Layout>
+
+<script is:inline>
+  document.addEventListener('astro:page-load', () => {
+    const container = document.querySelector('[data-post-slug]');
+    const slug = container?.getAttribute('data-post-slug') ?? '';
+    if (!slug) return;
+
+    const storageKey = `viewed-post-${slug}`;
+    if (sessionStorage.getItem(storageKey)) return;
+    sessionStorage.setItem(storageKey, '1');
+
+    fetch('/api/views', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data || typeof data.views !== 'number') return;
+        const el = document.getElementById('viewCount');
+        if (el) {
+          el.textContent = String(data.views);
+        }
+      })
+      .catch(() => {});
+  });
+</script>
 
 

@@ -1,0 +1,59 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createLoginLogsRepository, getDbClientFromLocals } from '../../db';
+import { formatDateTimeZh } from '../../lib/date';
+
+const db = getDbClientFromLocals(Astro.locals as any);
+const logs = db ? await createLoginLogsRepository(db).listAll() : [];
+---
+
+<AdminLayout title="后台 - 登录记录" currentPath={Astro.url.pathname}>
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+    <h2 style="margin: 0;">登录记录</h2>
+  </div>
+
+  {
+    db ? null : <p style="margin: 0.4rem 0; color: #b91c1c;">数据库绑定缺失，无法加载登录记录。</p>
+  }
+
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; min-width: 1080px;">
+      <thead>
+        <tr style="background: #f3f4f6;">
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">ID</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">用户</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">GitHub ID</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">邮箱</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">IP</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">UA</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">时间</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          logs.length === 0 ? (
+            <tr>
+              <td colspan="7" style="padding: 0.75rem; border: 1px solid #e5e7eb; color: #6b7280;">暂无登录记录</td>
+            </tr>
+          ) : (
+            logs.map((log) => (
+              <tr>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{log.id}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">
+                  {log.username}
+                  {log.userId ? ` (#${log.userId})` : ''}
+                </td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{log.githubId}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{log.email || '-'}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{log.ip || '-'}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb; white-space: pre-wrap; word-break: break-word;">{log.userAgent || '-'}</td>
+                <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{formatDateTimeZh(log.createdAt) || '-'}</td>
+              </tr>
+            ))
+          )
+        }
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

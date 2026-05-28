@@ -42,6 +42,7 @@ const successMessage = successKey ? successMessages[successKey] : '';
           <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">ID</th>
           <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">标题</th>
           <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">Slug</th>
+          <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">浏览量</th>
           <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">状态</th>
           <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">更新时间</th>
           <th style="text-align: left; padding: 0.55rem; border: 1px solid #e5e7eb;">操作</th>
@@ -51,7 +52,7 @@ const successMessage = successKey ? successMessages[successKey] : '';
   {
     projects.length === 0 ? (
       <tr>
-        <td colspan="6" style="padding: 0.75rem; border: 1px solid #e5e7eb; color: #6b7280;">暂无项目。</td>
+        <td colspan="7" style="padding: 0.75rem; border: 1px solid #e5e7eb; color: #6b7280;">暂无项目。</td>
       </tr>
     ) : (
       projects.map((project) => (
@@ -59,6 +60,7 @@ const successMessage = successKey ? successMessages[successKey] : '';
           <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.id}</td>
           <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.title}</td>
           <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.slug}</td>
+          <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.views ?? 0}</td>
           <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{project.status}</td>
           <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">{formatDateTimeZh(project.updatedAt) || '-'}</td>
           <td style="padding: 0.55rem; border: 1px solid #e5e7eb;">

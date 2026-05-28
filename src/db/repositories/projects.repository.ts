@@ -51,6 +51,28 @@ export function createProjectsRepository(db: DbClient) {
       const rows = await db.select().from(projects).where(eq(projects.slug, slug)).limit(1);
       return rows[0] ?? null;
     },
+    async incrementViewsBySlug(slug: string) {
+      const normalized = slug.trim();
+      if (!normalized) {
+        return 0;
+      }
+
+      await db
+        .update(projects)
+        .set({
+          views: sql`${projects.views} + 1`,
+          updatedAt: sql`CURRENT_TIMESTAMP`
+        })
+        .where(eq(projects.slug, normalized));
+
+      const rows = await db
+        .select({ views: projects.views })
+        .from(projects)
+        .where(eq(projects.slug, normalized))
+        .limit(1);
+
+      return Number(rows[0]?.views ?? 0);
+    },
     async getPublishedBySlug(slug: string) {
       const rows = await db
         .select()

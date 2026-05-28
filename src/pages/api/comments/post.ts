@@ -59,9 +59,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const author = normalizeText(body.author ?? body.nickname);
+    const authorFromUser = normalizeText(currentUser?.username);
+    const emailFromUser = normalizeText(currentUser?.email);
+    const author = authorFromUser || normalizeText(body.author ?? body.nickname);
     const nickname = normalizeText(body.nickname);
-    const email = normalizeText(body.email);
+    const email = emailFromUser || normalizeText(body.email);
     const content = normalizeText(body.content);
     const postSlug = normalizeText(body.postSlug ?? body.post_slug);
     const targetType = normalizeText(body.targetType ?? body.target_type) || (postSlug ? 'post' : '');
@@ -77,11 +79,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       targetType,
       targetId,
       author,
+      userId: currentUser?.id,
       hasContent: Boolean(content)
     });
 
-    if (!author || !content) {
-      return new Response('请填写必须的字段（昵称、评论内容）', { status: 400 });
+    if (!content) {
+      return new Response('请填写评论内容', { status: 400 });
     }
 
     if (!postSlug && (!targetType || !Number.isFinite(targetId ?? NaN))) {
@@ -99,6 +102,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       targetType: targetType || 'post',
       targetId: targetType === 'project' ? targetId : null,
       postSlug: postSlug || null,
+      userId: currentUser?.id ?? null,
       author: author || null,
       nickname: nickname || null,
       email: email || null,

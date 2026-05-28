@@ -30,7 +30,8 @@ const data = rows.map((project) => {
     title: project.title,
     summary: project.summary ?? '',
     date: dateSource ?? '',
-    stack: [] as string[]
+    stack: [] as string[],
+    views: project.views ?? 0
   };
 });
 

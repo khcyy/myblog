@@ -33,72 +33,115 @@ import Layout from '../layouts/Layout.astro';
   </div>
 
   <script>
-    // 定义全局变量存储索引
-    let allData: any[] = [];
-    
-    // 异步拉取我们生成的 search.json.ts 里的静态数据
-    async function fetchSearchData() {
-      try {
-        const res = await fetch('/search.json');
-        allData = await res.json();
-      } catch (error) {
-        console.error("加载搜索数据失败: ", error);
-        document.getElementById('searchResults')!.innerHTML = '<p style="color: red;">搜索服务加载失败，请刷新重试</p>';
-      }
-    }
-    
-    function renderResults(query: string) {
+    // @ts-nocheck
+    const MAX_QUERY_LENGTH = 40;
+    let debounceId = null;
+    let activeRequest = 0;
+    let initialized = false;
+
+    function renderMessage(message) {
       const resultsContainer = document.getElementById('searchResults');
       if (!resultsContainer) return;
-
-      if (!query.trim()) {
-        resultsContainer.innerHTML = '<p style="color: var(--sub); padding-left: 5px;">输入内容以开始搜索...</p>';
-        return;
-      }
-      
-      const lowerQuery = query.toLowerCase();
-      // 简单匹配：标题、描述 或 markdown正文内容中包含关键词
-      const filtered = allData.filter(item => 
-        (item.title && item.title.toLowerCase().includes(lowerQuery)) || 
-        (item.description && item.description.toLowerCase().includes(lowerQuery)) ||
-        (item.content && item.content.toLowerCase().includes(lowerQuery))
-      );
-      
-      if (filtered.length === 0) {
-        resultsContainer.innerHTML = '<p style="color: var(--sub); padding-left: 5px;">没有找到匹配的内容，换个词试试？</p>';
-        return;
-      }
-      
-      resultsContainer.innerHTML = filtered.map(item => `
-        <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line); transition: transform 0.2s;">
-          <div>
-            <div style="font-size: 12px; color: var(--sub); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">
-              ${item.type === 'blog' ? '📝 文章' : '💻 项目'}
-            </div>
-            <h3 style="margin: 0 0 10px; font-size: 20px;">
-              <a href="${item.url}" style="text-decoration:none; color: var(--text);">${item.title}</a>
-            </h3>
-            <p style="margin: 0; color: var(--sub); line-height: 1.6; font-size: 15px;">${item.description}</p>
-          </div>
-        </article>
-      `).join('');
+      resultsContainer.innerHTML = `<p style="color: var(--sub); padding-left: 5px;">${message}</p>`;
     }
 
-    // Astro 的视图过渡事件兼容
-    document.addEventListener('astro:page-load', () => {
-      const input = document.getElementById('searchInput') as HTMLInputElement | null;
-      if (input) {
-        // 进入页面即自动加载 json 索引
-        fetchSearchData().then(() => {
-           // 如果输入框有保留数据（例如返回上一页），则触发渲染
-           if (input.value) renderResults(input.value);
-        });
-        
-        // 监听每一次键盘输入
-        input.addEventListener('input', (e) => {
-          renderResults((e.target as HTMLInputElement).value);
-        });
+    async function runSearch(query) {
+      const requestId = ++activeRequest;
+      renderMessage('正在搜索...');
+
+      try {
+        const res = await fetch(`/search.json?q=${encodeURIComponent(query)}`);
+        const payload = await res.json();
+        if (requestId !== activeRequest) return;
+
+        if (!res.ok || payload?.ok === false) {
+          renderMessage(payload?.message || '搜索失败，请稍后重试。');
+          return;
+        }
+
+        const results = Array.isArray(payload?.results) ? payload.results : [];
+        if (results.length === 0) {
+          renderMessage(payload?.message || '没有找到匹配的内容，换个词试试？');
+          return;
+        }
+
+        const resultsContainer = document.getElementById('searchResults');
+        if (!resultsContainer) return;
+
+        resultsContainer.innerHTML = results.map((item) => `
+          <article class="item" style="padding: 24px; border-radius: 20px; background: color-mix(in srgb, var(--paper) 100%, transparent); border: 1px solid var(--line); transition: transform 0.2s;">
+            <div>
+              <div style="font-size: 12px; color: var(--sub); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">
+                ${item.type === 'blog' ? '📝 文章' : '💻 项目'}
+              </div>
+              <h3 style="margin: 0 0 10px; font-size: 20px;">
+                <a href="${item.url}" style="text-decoration:none; color: var(--text);">${item.title}</a>
+              </h3>
+              <p style="margin: 0 0 8px; color: var(--sub); line-height: 1.6; font-size: 15px;">${item.excerpt || ''}</p>
+              ${item.publishedAt ? '<div style="font-size: 12px; color: var(--sub);">' + formatDate(item.publishedAt) + '</div>' : ''}
+            </div>
+          </article>
+        `).join('');
+      } catch (error) {
+        if (requestId !== activeRequest) return;
+        console.error('搜索失败: ', error);
+        renderMessage('搜索服务加载失败，请刷新重试。');
       }
-    });
+    }
+
+    function formatDate(value) {
+      if (!value) return '';
+      const time = Date.parse(value);
+      if (!Number.isFinite(time)) return '';
+      return new Date(time).toLocaleDateString('zh-CN');
+    }
+
+    function initSearch() {
+      if (initialized) return;
+      initialized = true;
+
+      const input = document.getElementById('searchInput');
+      if (!(input instanceof HTMLInputElement)) return;
+
+      const handleInput = (value) => {
+        const trimmed = value.trim();
+        if (!trimmed) {
+          renderMessage('输入内容以开始搜索...');
+          return;
+        }
+
+        if (trimmed.length > MAX_QUERY_LENGTH) {
+          renderMessage(`关键词过长，请控制在 ${MAX_QUERY_LENGTH} 个字符内。`);
+          return;
+        }
+
+        if (debounceId) {
+          clearTimeout(debounceId);
+        }
+
+        debounceId = window.setTimeout(() => {
+          runSearch(trimmed);
+        }, 200);
+      };
+
+      if (input.value) {
+        handleInput(input.value);
+      }
+
+      input.addEventListener('input', (e) => {
+        const target = e.target;
+        if (target instanceof HTMLInputElement) {
+          handleInput(target.value);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSearch);
+    } else {
+      initSearch();
+    }
+
+    document.addEventListener('astro:page-load', initSearch);
   </script>
 </Layout>

@@ -15,6 +15,14 @@ type GitHubUserResponse = {
   id: number;
   login: string;
   avatar_url: string | null;
+  email?: string | null;
+};
+
+type GitHubEmailItem = {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+  visibility: string | null;
 };
 
 export function getEnvFromLocals(locals: RuntimeLocals) {
@@ -92,6 +100,42 @@ export async function exchangeCodeForAccessToken(input: {
   return json.access_token;
 }
 
+function pickBestEmail(items: GitHubEmailItem[]) {
+  const primary = items.find((item) => item.primary && item.verified && item.email);
+  if (primary) {
+    return primary.email;
+  }
+
+  const verified = items.find((item) => item.verified && item.email);
+  if (verified) {
+    return verified.email;
+  }
+
+  const any = items.find((item) => item.email);
+  return any?.email ?? null;
+}
+
+async function fetchGitHubEmail(accessToken: string) {
+  const response = await fetch('https://api.github.com/user/emails', {
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      accept: 'application/vnd.github+json',
+      'user-agent': 'myblog-auth'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub email fetch failed: ${response.status}`);
+  }
+
+  const json = (await response.json()) as GitHubEmailItem[];
+  if (!Array.isArray(json)) {
+    return null;
+  }
+
+  return pickBestEmail(json);
+}
+
 export async function fetchGitHubUser(accessToken: string) {
   const response = await fetch('https://api.github.com/user', {
     headers: {
@@ -110,9 +154,21 @@ export async function fetchGitHubUser(accessToken: string) {
     throw new Error('GitHub user payload is incomplete');
   }
 
+  let email = typeof json.email === 'string' && json.email.trim() ? json.email.trim() : null;
+  if (!email) {
+    try {
+      email = await fetchGitHubEmail(accessToken);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn('[auth][github] email fetch failed', { message });
+      email = null;
+    }
+  }
+
   return {
     githubId: String(json.id),
     username: json.login,
-    avatarUrl: json.avatar_url ?? null
+    avatarUrl: json.avatar_url ?? null,
+    email
   };
 }

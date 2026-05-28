@@ -5,6 +5,7 @@ import { users } from '../schema';
 type UpsertGithubUserInput = {
   githubId: string;
   username: string;
+  email: string | null;
   avatarUrl: string | null;
   role: string;
 };
@@ -28,6 +29,7 @@ export function createUsersRepository(db: DbClient) {
         await db.insert(users).values({
           githubId: input.githubId,
           username: input.username,
+          email: input.email,
           avatarUrl: input.avatarUrl,
           role: input.role
         });
@@ -38,6 +40,7 @@ export function createUsersRepository(db: DbClient) {
         .update(users)
         .set({
           username: input.username,
+          email: input.email,
           avatarUrl: input.avatarUrl,
           role: input.role,
           updatedAt: sql`CURRENT_TIMESTAMP`

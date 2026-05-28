@@ -26,6 +26,7 @@ type ProjectPreview = {
   summary: string;
   date: string;
   stack: string[];
+  views: number;
 };
 
 const db = getDbClientFromLocals(Astro.locals as any);
@@ -90,7 +91,8 @@ const projects: ProjectPreview[] = projectRepo
         title: project.title,
         summary: project.summary ?? '',
         date: dateSource ?? '',
-        stack: []
+        stack: [],
+        views: project.views ?? 0
       };
     })
   : [];

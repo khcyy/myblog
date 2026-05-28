@@ -12,6 +12,7 @@ import {
   clearOAuthRedirectCookie
 } from '../../../../lib/auth/session';
 import { upsertGithubUser } from '../../../../lib/auth/user';
+import { createLoginLogsRepository, getDbClientFromLocals } from '../../../../db';
 
 export const prerender = false;
 
@@ -38,6 +39,14 @@ function normalizeRedirectPath(value: string | null) {
     return '';
   }
   return trimmed;
+}
+
+function getClientIp(request: Request) {
+  const header = request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for');
+  if (!header) {
+    return null;
+  }
+  return header.split(',')[0].trim();
 }
 
 export const GET: APIRoute = async ({ request, locals, cookies, redirect }) => {
@@ -82,6 +91,24 @@ export const GET: APIRoute = async ({ request, locals, cookies, redirect }) => {
 
     stage = 'db';
     const user = await upsertGithubUser(locals as any, githubUser);
+
+    try {
+      const db = getDbClientFromLocals(locals as any);
+      if (db) {
+        const repo = createLoginLogsRepository(db);
+        await repo.create({
+          userId: user.id,
+          githubId: user.githubId,
+          username: user.username,
+          email: user.email ?? null,
+          ip: getClientIp(request),
+          userAgent: request.headers.get('user-agent')
+        });
+      }
+    } catch (error) {
+      const message = errorMessage(error);
+      console.warn('[auth][callback] login log failed', { message });
+    }
 
     stage = 'session';
     await createSessionCookie(cookies, env, request.url, {

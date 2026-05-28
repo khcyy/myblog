@@ -10,6 +10,7 @@ type GitHubProfile = {
   githubId: string;
   username: string;
   avatarUrl: string | null;
+  email: string | null;
 };
 
 function getAdminGithubSet(env?: Env) {
@@ -54,6 +55,7 @@ export async function upsertGithubUser(locals: RuntimeLocals, profile: GitHubPro
     githubId: profile.githubId,
     username: profile.username,
     avatarUrl: profile.avatarUrl,
+    email: profile.email,
     role
   });
 

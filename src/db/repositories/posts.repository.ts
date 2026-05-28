@@ -133,6 +133,28 @@ export function createPostsRepository(db: DbClient) {
         .limit(1);
       return rows[0] ? mapPost(rows[0]) : null;
     },
+    async incrementViewsBySlug(slug: string) {
+      const normalized = slug.trim();
+      if (!normalized) {
+        return 0;
+      }
+
+      await db
+        .update(posts)
+        .set({
+          views: sql`${posts.views} + 1`,
+          updatedAt: sql`CURRENT_TIMESTAMP`
+        })
+        .where(eq(posts.slug, normalized));
+
+      const rows = await db
+        .select({ views: posts.views })
+        .from(posts)
+        .where(eq(posts.slug, normalized))
+        .limit(1);
+
+      return Number(rows[0]?.views ?? 0);
+    },
     async create(input: typeof posts.$inferInsert & { tags?: string[] | null }) {
       const { tags, ...rest } = input;
       return db.insert(posts).values({

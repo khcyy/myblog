@@ -7,6 +7,7 @@ export const users = sqliteTable(
     id: integer('id').primaryKey({ autoIncrement: true }),
     githubId: text('github_id').notNull(),
     username: text('username').notNull(),
+    email: text('email'),
     avatarUrl: text('avatar_url'),
     role: text('role').notNull().default('reader'),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -51,6 +52,7 @@ export const projects = sqliteTable(
     summary: text('summary'),
     content: text('content').notNull().default(''),
     status: text('status').notNull().default('draft'),
+    views: integer('views').notNull().default(0),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     publishedAt: text('published_at')
@@ -86,6 +88,25 @@ export const comments = sqliteTable(
   ]
 );
 
+export const loginLogs = sqliteTable(
+  'login_logs',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    userId: integer('user_id'),
+    githubId: text('github_id').notNull(),
+    username: text('username').notNull(),
+    email: text('email'),
+    ip: text('ip'),
+    userAgent: text('user_agent'),
+    createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`)
+  },
+  (table) => [
+    index('login_logs_user_id_idx').on(table.userId),
+    index('login_logs_github_id_idx').on(table.githubId),
+    index('login_logs_created_at_idx').on(table.createdAt)
+  ]
+);
+
 export const siteSettings = sqliteTable('site_settings', {
   id: integer('id').primaryKey(),
   siteName: text('site_name').notNull().default('My Blog'),
@@ -103,5 +124,6 @@ export const schema = {
   posts,
   projects,
   comments,
+  loginLogs,
   siteSettings
 };
